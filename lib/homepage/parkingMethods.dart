@@ -450,7 +450,7 @@ Future<String> fetchOne(String deck) async {
 */
 Future<Map<int, int>?> fetchAll() async {
   Map<int, int> result = {};
-  const String apiUrl = 'http://127.0.0.1:8000/decks'; // The correct, working endpoint
+  const String apiUrl = 'http://134.126.152.145:8000/decks'; // The correct, working endpoint
 
   try {
     final response = await http.get(Uri.parse(apiUrl));
