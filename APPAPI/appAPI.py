@@ -75,8 +75,4 @@ def home():
     return "Welcome to the Flask REST API!"
 
 if __name__ == '__main__':
-    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    ssl_context.load_cert_chain(
-        '/etc/ssl/certs/flask/cert.pem', 
-        '/etc/ssl/certs/flask/key.pem')
-    app.run(host='0.0.0.0', port=8000, ssl_context=ssl_context, debug=True)
+    app.run(host='0.0.0.0', port=8000, debug=True)
