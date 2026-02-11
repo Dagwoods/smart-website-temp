@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS, cross_origin
+import ssl
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -74,4 +75,8 @@ def home():
     return "Welcome to the Flask REST API!"
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    ssl_context.load_cert_chain(
+        '/etc/ssl/certs/flask/cert.pem', 
+        '/etc/ssl/certs/flask/key.pem')
+    app.run(host='0.0.0.0', port=8000, ssl_context=ssl_context, debug=True)
