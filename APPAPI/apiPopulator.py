@@ -63,7 +63,11 @@ api_zones = {
 
 def sendDataToAPI(zone, value):
     if zone in api_zone_ids:
-        api = 'http://134.126.152.145:8000/decks/' + api_zones[zone]
+        # Use localhost for internal updates so the populator can reach
+        # the Flask server when running on the same machine (avoids
+        # router/NAT hairpinning issues). External clients should use
+        # the public IP (configured in the Flutter web build).
+        api = 'http://127.0.0.1:8000/decks/' + api_zones[zone]
         headers = {'Content-Type': 'application/json'}
         payload = {'value': value}
         r = requests.put(api,json=payload)
