@@ -7,7 +7,7 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import time
 
-url = "https://www.jmu.edu/cgi-bin/parking_sign_data.cgi?hash=53616c7465645f5f4c03eadd986acf07775e314a27e46ac7b36f35b8887e4e67ea5489a0733beab3e908f947f1a121913b0c1bbaa8d855d0a76820c2ce3b3b4f9c78a1a4638afe82e66c5e27e2c5af01|869835tg89dhkdnbnsv5sg5wg0vmcf4mfcfc2qwm5968unmeh5"
+url = "https://134.126.152.145:5000/parking"
 # warsaw has been changed from 3 to 42
 desired_zone_ids = ['22', '13', '19', '4', '42', '27', '40', '12', '6', '41', '30', '32', '34', '36', '28', '39', '29', '31', '33', '35', '37', '38']
 zones = {
