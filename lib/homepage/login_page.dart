@@ -12,6 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smart_parking/homepage/signup_page.dart';
 import 'package:smart_parking/main.dart';
 import 'package:smart_parking/services/auth_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_parking/homepage/home_page.dart';
@@ -19,7 +20,7 @@ import 'package:smart_parking/homepage/home_page.dart';
 // Import your HomePage or starting page
 
 class Login extends StatefulWidget {
-  Login({super.key});
+  const Login({super.key});
 
   @override
   _LoginState createState() => _LoginState();
@@ -34,58 +35,119 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      backgroundColor: const Color.fromRGBO(0, 0, 0, 1),
       resizeToAvoidBottomInset: true,
-      bottomNavigationBar: _signup(context),
-      // appBar: AppBar(
-      //   title: const Text('Parking Pal - Sign In Below'), // OG - Login
-      // ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 60),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              
-              _buildImage(),
-              const SizedBox(height: 40),
-              const Text(
-                'Smart Parking Assistant',
-                style: TextStyle(
-                    color: Color.fromRGBO(69, 0, 132, 1),
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 40),
-              _emailAddress(),
-              const SizedBox(height: 20),
-              _password(),
-              const SizedBox(height: 10),
-              _forgotPasswordButton(context),
-              const SizedBox(height: 50),
-              _signin(context),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomLeft,
+            end: Alignment.topRight,
+            colors: [
+              Color.fromRGBO(0, 0, 0, 1),
+              Color.fromRGBO(69, 0, 132, 1),
             ],
           ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              left: -120,
+              bottom: -140,
+              child: _meshOrb(
+                size: 320,
+                colors: const [
+                  Color.fromRGBO(0, 0, 0, 0.75),
+                  Color.fromRGBO(32, 0, 64, 0.15),
+                ],
+              ),
+            ),
+            Positioned(
+              right: -90,
+              top: -120,
+              child: _meshOrb(
+                size: 340,
+                colors: const [
+                  Color.fromRGBO(90, 28, 148, 0.6),
+                  Color.fromRGBO(69, 0, 132, 0.0),
+                ],
+              ),
+            ),
+            Positioned(
+              left: 40,
+              top: 180,
+              child: _meshOrb(
+                size: 220,
+                colors: const [
+                  Color.fromRGBO(120, 56, 178, 0.28),
+                  Color.fromRGBO(69, 0, 132, 0.0),
+                ],
+              ),
+            ),
+            SafeArea(
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildImage(),
+                          const SizedBox(height: 10),
+                          Text(
+                            'Smart Parking Assistant',
+                            style: GoogleFonts.montserrat(
+                              color: const Color.fromRGBO(230, 230, 235, 1),
+                              fontSize: 24,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          _emailAddress(),
+                          const SizedBox(height: 6),
+                          _password(),
+                          const SizedBox(height: 0),
+                          _forgotPasswordButton(context),
+                          const SizedBox(height: 10),
+                          _signin(context),
+                        ],
+                      ),
+                    ),
+                    _signup(context),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 
+  Widget _meshOrb({required double size, required List<Color> colors}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(colors: colors),
+      ),
+    );
+  }
+
   Widget _emailAddress() {
-
-    return Center (
+    return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-        ),
-        child: Padding (
+        constraints: const BoxConstraints(),
+        child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 60.0),
-
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Email Address',
-                style: TextStyle(color: Color.fromRGBO(0, 0, 0, 1)),
+                style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
               ),
               const SizedBox(height: 16),
               TextField(
@@ -93,67 +155,66 @@ class _LoginState extends State<Login> {
                 decoration: InputDecoration(
                   filled: true,
                   hintText: 'example@test.com',
-                  hintStyle: const TextStyle(color: Color.fromRGBO(106, 106, 106, 1), fontSize: 14),
+                  hintStyle: const TextStyle(
+                      color: Color.fromRGBO(106, 106, 106, 1), fontSize: 14),
                   fillColor: const Color.fromRGBO(247, 247, 249, 1),
                   border: OutlineInputBorder(
                     borderSide: BorderSide.none,
                     borderRadius: BorderRadius.circular(14),
-            ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      ],
-    ),
-    ),
-    ),
+      ),
     );
   }
 
   Widget _password() {
-    return Center (
+    return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-        ),
-        child: Padding (
+        constraints: const BoxConstraints(),
+        child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 60.0),
-
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            const Text(
-              'Password',
-              style: TextStyle(color: Color.fromRGBO(0, 0, 0, 1)),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _passwordController,
-              obscureText: _isObscured,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: const Color.fromRGBO(247, 247, 249, 1),
-                border: OutlineInputBorder(
-                  borderSide: BorderSide.none,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _isObscured ? Icons.visibility_off : Icons.visibility,
-                    color: const Color.fromRGBO(158, 158, 158, 1),
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isObscured = !_isObscured;
-                    });
-                  },
-                ),
+              const Text(
+                'Password',
+                style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
               ),
-              onSubmitted: (_) async {
-                await AuthService().signin(
-                  email: _emailController.text,
-                  password: _passwordController.text,
-                  context: context,
-                );
-              },
-            ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _passwordController,
+                obscureText: _isObscured,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: const Color.fromRGBO(247, 247, 249, 1),
+                  border: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isObscured ? Icons.visibility_off : Icons.visibility,
+                      color: const Color.fromRGBO(158, 158, 158, 1),
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isObscured = !_isObscured;
+                      });
+                    },
+                  ),
+                ),
+                onSubmitted: (_) async {
+                  await AuthService().signin(
+                    email: _emailController.text,
+                    password: _passwordController.text,
+                    context: context,
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -162,22 +223,20 @@ class _LoginState extends State<Login> {
   }
 
   Widget _forgotPasswordButton(BuildContext context) {
-    return Center (
+    return Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(
-        ),
-        child: Padding (
+        constraints: const BoxConstraints(),
+        child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 60.0),
-
           child: Align(
             alignment: Alignment.centerRight,
             child: TextButton(
-            onPressed: () => _resetPassword(context),
-            child: const Text(
-              'Forgot Password?',
-              style: TextStyle(color: Color.fromRGBO(69, 0, 132, 1)),
+              onPressed: () => _resetPassword(context),
+              child: const Text(
+                'Forgot Password?',
+                style: TextStyle(color: Color.fromRGBO(203, 182, 119, 1)),
+              ),
             ),
-           ),
           ),
         ),
       ),
@@ -208,19 +267,24 @@ class _LoginState extends State<Login> {
   Widget _signin(BuildContext context) {
     return ConstrainedBox(
       constraints: const BoxConstraints(
-        maxWidth: 400.0, 
-    ),
-      child: Padding (
-      
+        maxWidth: 400.0,
+      ),
+      child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40.0),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color.fromRGBO(69, 0, 132, 1),
+            backgroundColor: const Color.fromRGBO(255, 255, 255, 0.14),
+            foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(14),
             ),
-            minimumSize: const Size(double.infinity, 60), // OG minimumSize: const Size(double.infinity, 60),
-            elevation: 0,    padding: const EdgeInsets.symmetric(horizontal: 20.0), 
+            side: const BorderSide(
+              color: Color.fromRGBO(255, 255, 255, 0.32),
+              width: 1,
+            ),
+            minimumSize: const Size(double.infinity,
+                60), // OG minimumSize: const Size(double.infinity, 60),
+            elevation: 0, padding: const EdgeInsets.symmetric(horizontal: 20.0),
           ),
           onPressed: () async {
             await AuthService().signin(
@@ -235,7 +299,7 @@ class _LoginState extends State<Login> {
           ),
         ),
       ),
-      );
+    );
   }
 
   Widget _signup(BuildContext context) {
@@ -247,16 +311,18 @@ class _LoginState extends State<Login> {
           children: [
             const TextSpan(
               text: "New User? ",
-              style: TextStyle(color: Color.fromRGBO(0, 0, 0, 1), fontSize: 16),
+              style: TextStyle(
+                  color: Color.fromRGBO(255, 255, 255, 1), fontSize: 16),
             ),
             TextSpan(
               text: "Create Account",
-              style: const TextStyle(color: Color.fromRGBO(69, 0, 132, 1), fontSize: 16),
+              style: const TextStyle(
+                  color: Color.fromRGBO(203, 182, 119, 1), fontSize: 16),
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => Signup()),
+                    MaterialPageRoute(builder: (context) => const Signup()),
                   );
                 },
             ),
@@ -267,13 +333,13 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildImage() {
-    return Padding (
+    return Padding(
       padding: const EdgeInsets.symmetric(vertical: 0),
       child: Image.asset(
-        'assets/images/JMU Logo Purple.png',
-         width: 350,
+        'assets/images/JMU-Logo-RGB-vert-white.png',
+        width: 450,
         fit: BoxFit.contain,
       ),
-  );
-}
+    );
+  }
 }

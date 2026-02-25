@@ -5,7 +5,7 @@
 // This code takes the entered data and stores it in the firebase
 // The username and email are store in the database, the email in the database and the authentication and the password is just stored in the authentication
 
-// This page is accessed through the account tab 
+// This page is accessed through the account tab
 
 // Import the needed package
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,6 +14,7 @@ import 'package:smart_parking/homepage/login_page.dart';
 import 'package:smart_parking/homepage/account_page.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 // signup is stateful
 class Signup extends StatefulWidget {
@@ -31,37 +32,107 @@ class _SignupState extends State<Signup> {
 
   bool _isObscured = true;
   String _password = "";
- 
+
   // build the UI for the app
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromRGBO(0, 0, 0, 1),
+      extendBodyBehindAppBar: true,
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
-        title: const Text('Register Account'),
-        backgroundColor: const Color.fromRGBO(69, 0, 132, 1),
+        title: Text(
+          'Register Account',
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.w500),
+        ),
+        backgroundColor: Colors.transparent,
         foregroundColor: const Color.fromARGB(255, 255, 255, 255),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
       ),
       // Bottom navigation for users who already have an account.
       bottomNavigationBar: _signin(context),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-              _usernameField(),
-              const SizedBox(height: 20),
-              _emailField(),
-              const SizedBox(height: 20),
-              _passwordField(),
-              const SizedBox(height: 10),
-              _passwordRequirements(),
-              const SizedBox(height: 40),
-              _signupButton(context),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomLeft,
+            end: Alignment.topRight,
+            colors: [
+              Color.fromRGBO(0, 0, 0, 1),
+              Color.fromRGBO(69, 0, 132, 1),
             ],
           ),
         ),
+        child: Stack(
+          children: [
+            Positioned(
+              left: -120,
+              bottom: -140,
+              child: _meshOrb(
+                size: 320,
+                colors: const [
+                  Color.fromRGBO(0, 0, 0, 0.75),
+                  Color.fromRGBO(32, 0, 64, 0.15),
+                ],
+              ),
+            ),
+            Positioned(
+              right: -90,
+              top: -120,
+              child: _meshOrb(
+                size: 340,
+                colors: const [
+                  Color.fromRGBO(90, 28, 148, 0.6),
+                  Color.fromRGBO(69, 0, 132, 0.0),
+                ],
+              ),
+            ),
+            Positioned(
+              left: 40,
+              top: 180,
+              child: _meshOrb(
+                size: 220,
+                colors: const [
+                  Color.fromRGBO(120, 56, 178, 0.28),
+                  Color.fromRGBO(69, 0, 132, 0.0),
+                ],
+              ),
+            ),
+            SafeArea(
+              child: SingleChildScrollView(
+                padding:
+                    const EdgeInsets.fromLTRB(16, kToolbarHeight + 24, 16, 16),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    _usernameField(),
+                    const SizedBox(height: 20),
+                    _emailField(),
+                    const SizedBox(height: 20),
+                    _passwordField(),
+                    const SizedBox(height: 10),
+                    _passwordRequirements(),
+                    const SizedBox(height: 40),
+                    _signupButton(context),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _meshOrb({required double size, required List<Color> colors}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(colors: colors),
       ),
     );
   }
@@ -212,42 +283,40 @@ class _SignupState extends State<Signup> {
   }
 
   void showCustomSnackBar(BuildContext context, String message) {
-  final overlay = Overlay.of(context);
-  final overlayEntry = OverlayEntry(
-    builder: (context) => Positioned(
-      top: MediaQuery.of(context).size.height / 2 - 40, // Center vertically
-      left: 20,
-      right: 20,
-      child: Material(
-        color: Colors.transparent,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            color: Colors.black87,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            message,
-            style: const TextStyle(color: Colors.white),
-            textAlign: TextAlign.center,
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        top: MediaQuery.of(context).size.height / 2 - 40, // Center vertically
+        left: 20,
+        right: 20,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.black87,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              message,
+              style: const TextStyle(color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
           ),
         ),
       ),
-    ),
-  );
+    );
 
-  overlay.insert(overlayEntry);
-  
-  // Remove after 2 seconds
-  Future.delayed(const Duration(seconds: 2), () {
-    overlayEntry.remove();
-  });
-}
+    overlay.insert(overlayEntry);
 
+    // Remove after 2 seconds
+    Future.delayed(const Duration(seconds: 2), () {
+      overlayEntry.remove();
+    });
+  }
 
   // Signup button that integrates Firebase Authentication and Firestore.
   Widget _signupButton(BuildContext context) {
-
     return ConstrainedBox(
       constraints: const BoxConstraints(
         maxWidth: 400.0,
@@ -272,35 +341,34 @@ class _SignupState extends State<Signup> {
             }
             try {
               // Create a new user account with Firebase Authentication
-              UserCredential userCredential = await FirebaseAuth.instance
-                  .createUserWithEmailAndPassword(
+              UserCredential userCredential =
+                  await FirebaseAuth.instance.createUserWithEmailAndPassword(
                 email: _emailController.text,
                 password: _passwordController.text,
               );
               // Get the userID
               String userId = userCredential.user!.uid;
 
-          // Save additional user information in Firestore
-          await FirebaseFirestore.instance.collection('users').doc(userId).set({
-            'username': _usernameController.text,
-            'email': _emailController.text,
-            'userID': userId,
-          });
+              // Save additional user information in Firestore
+              await FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(userId)
+                  .set({
+                'username': _usernameController.text,
+                'email': _emailController.text,
+                'userID': userId,
+              });
 
-                    
-
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AccountPage(),
-            ),
-          );
-        } catch (e) {
-                    showCustomSnackBar(context, 'Error creating account.');
-
-        }
-      },
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AccountPage(),
+                ),
+              );
+            } catch (e) {
+              showCustomSnackBar(context, 'Error creating account.');
+            }
+          },
           child: const Text(
             "Sign Up",
             style: TextStyle(

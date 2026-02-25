@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../settings/settings_view.dart';
 import 'sample_item.dart';
@@ -18,8 +19,17 @@ class SampleItemListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Sample Items'),
+        title: Text(
+          'Sample Items',
+          style: GoogleFonts.montserrat(fontWeight: FontWeight.w500),
+        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -49,21 +59,20 @@ class SampleItemListView extends StatelessWidget {
           final item = items[index];
 
           return ListTile(
-            title: Text('SampleItem ${item.id}'),
-            leading: const CircleAvatar(
-              // Display the Flutter Logo image asset.
-              foregroundImage: AssetImage('assets/images/flutter_logo.png'),
-            ),
-            onTap: () {
-              // Navigate to the details page. If the user leaves and returns to
-              // the app after it has been killed while running in the
-              // background, the navigation stack is restored.
-              Navigator.restorablePushNamed(
-                context,
-                SampleItemDetailsView.routeName,
-              );
-            }
-          );
+              title: Text('SampleItem ${item.id}'),
+              leading: const CircleAvatar(
+                // Display the Flutter Logo image asset.
+                foregroundImage: AssetImage('assets/images/flutter_logo.png'),
+              ),
+              onTap: () {
+                // Navigate to the details page. If the user leaves and returns to
+                // the app after it has been killed while running in the
+                // background, the navigation stack is restored.
+                Navigator.restorablePushNamed(
+                  context,
+                  SampleItemDetailsView.routeName,
+                );
+              });
         },
       ),
     );

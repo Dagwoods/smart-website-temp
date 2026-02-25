@@ -1,4 +1,3 @@
-// ...existing code...
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html;
@@ -8,9 +7,9 @@ import 'weather_page.dart';
 import 'dart:async';
 import 'package:url_launcher/url_launcher.dart';
 import 'parkingMethods.dart';
-
-// Written by Rafael Margary & Tim Hudson - Last Updated 4/9/2025
-// Written with the assistance of Openstack and ChatGPT
+import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../widgets/appbar_datetime_center.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -190,7 +189,9 @@ class HomePageState extends State<HomePage> {
 
   // Builds the inner content of a commuter card: left image (or placeholder) and
   // right-side column with title and the existing FutureBuilder that renders mode counters.
-  Widget _cardBody(String keyPrefix, Future<Map<int, int>?> future, String title, {double imageWidth = 80}) {
+  Widget _cardBody(
+      String keyPrefix, Future<Map<int, int>?> future, String title,
+      {double imageWidth = 80}) {
     final String imagePath = boxImagePaths[keyPrefix] ?? '';
     return Row(
       children: [
@@ -208,7 +209,8 @@ class HomePageState extends State<HomePage> {
                       imagePath,
                       width: imageWidth * 1.5,
                       fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) => const Center(
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Center(
                         child: Icon(
                           Icons.broken_image,
                           size: 36,
@@ -248,7 +250,8 @@ class HomePageState extends State<HomePage> {
                     future: future,
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data is Map<int, int>) {
-                        return _buildAllModesFor(keyPrefix, snapshot.data as Map<int, int>);
+                        return _buildAllModesFor(
+                            keyPrefix, snapshot.data as Map<int, int>);
                       } else {
                         return const Center(child: CircularProgressIndicator());
                       }
@@ -335,10 +338,11 @@ class HomePageState extends State<HomePage> {
         Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: translateColor(translateType(mode1)),
+            color: Colors.transparent,
                 boxShadow: [
                   BoxShadow(
-                    color: const Color.fromRGBO(255, 255, 255, 1).withOpacity(0.3),
+                    color:
+                        const Color.fromRGBO(255, 255, 255, 1).withOpacity(0.3),
                     offset: const Offset(0, 4),
                     blurRadius: 10,
                     spreadRadius: 2,
@@ -347,7 +351,7 @@ class HomePageState extends State<HomePage> {
             child: GestureDetector(
                 onTap: () => loadData(), // single tap refresh — no cycling
                 child: Card(
-                    margin: const EdgeInsets.all(2.0),
+                  margin: EdgeInsets.zero,
                     color: const Color.fromRGBO(255, 255, 255, 1),
                     child: SizedBox(
                         child: Padding(
@@ -358,7 +362,9 @@ class HomePageState extends State<HomePage> {
                               children: [
                                 // Card body handles image (placeholder) + title + future counters
                                 Expanded(
-                                  child: _cardBody("ballard", newValues, "Ballard", imageWidth: 180),
+                                  child: _cardBody(
+                                      "ballard", newValues, "Ballard",
+                                      imageWidth: 180),
                                 ),
                               ],
                             )))))),
@@ -366,7 +372,7 @@ class HomePageState extends State<HomePage> {
         Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: translateColor(translateType(mode2)),
+            color: Colors.transparent,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.3),
@@ -378,7 +384,7 @@ class HomePageState extends State<HomePage> {
             child: GestureDetector(
                 onTap: () => loadData(),
                 child: Card(
-                    margin: const EdgeInsets.all(2.0),
+                margin: EdgeInsets.zero,
                     color: const Color.fromRGBO(255, 255, 255, 1),
                     child: SizedBox(
                         child: Padding(
@@ -388,7 +394,8 @@ class HomePageState extends State<HomePage> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Expanded(
-                                  child: _cardBody("grace", newValues, "Grace", imageWidth: 180),
+                                  child: _cardBody("grace", newValues, "Grace",
+                                      imageWidth: 180),
                                 ),
                               ],
                             )))))),
@@ -396,7 +403,7 @@ class HomePageState extends State<HomePage> {
         Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: translateColor(translateType(mode3)),
+            color: Colors.transparent,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.3),
@@ -408,7 +415,7 @@ class HomePageState extends State<HomePage> {
             child: GestureDetector(
                 onTap: () => loadData(),
                 child: Card(
-                    margin: const EdgeInsets.all(2.0),
+                margin: EdgeInsets.zero,
                     color: const Color.fromRGBO(255, 255, 255, 1),
                     child: SizedBox(
                         child: Padding(
@@ -418,7 +425,9 @@ class HomePageState extends State<HomePage> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Expanded(
-                                  child: _cardBody("warsaw", newValues, "Warsaw", imageWidth: 180),
+                                  child: _cardBody(
+                                      "warsaw", newValues, "Warsaw",
+                                      imageWidth: 180),
                                 ),
                               ],
                             )))))),
@@ -426,7 +435,7 @@ class HomePageState extends State<HomePage> {
         Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: translateColor(translateType(mode4)),
+            color: Colors.transparent,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.3),
@@ -438,7 +447,7 @@ class HomePageState extends State<HomePage> {
             child: GestureDetector(
                 onTap: () => loadData(),
                 child: Card(
-                    margin: const EdgeInsets.all(2.0),
+                margin: EdgeInsets.zero,
                     color: const Color.fromRGBO(255, 255, 255, 1),
                     child: SizedBox(
                         child: Padding(
@@ -448,7 +457,9 @@ class HomePageState extends State<HomePage> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Expanded(
-                                  child: _cardBody("chesapeake", newValues, "Chesapeake", imageWidth: 180),
+                                  child: _cardBody(
+                                      "chesapeake", newValues, "Chesapeake",
+                                      imageWidth: 180),
                                 ),
                               ],
                             )))))),
@@ -456,7 +467,7 @@ class HomePageState extends State<HomePage> {
         Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: translateColor(translateType(mode5)),
+            color: Colors.transparent,
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.3),
@@ -468,7 +479,7 @@ class HomePageState extends State<HomePage> {
             child: GestureDetector(
                 onTap: () => loadData(),
                 child: Card(
-                    margin: const EdgeInsets.all(2.0),
+                margin: EdgeInsets.zero,
                     color: const Color.fromRGBO(255, 255, 255, 1),
                     child: SizedBox(
                         child: Padding(
@@ -478,7 +489,9 @@ class HomePageState extends State<HomePage> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Expanded(
-                                  child: _cardBody("champions", newValues, "Champions", imageWidth: 180),
+                                  child: _cardBody(
+                                      "champions", newValues, "Champions",
+                                      imageWidth: 180),
                                 ),
                               ],
                             )))))),
@@ -486,7 +499,7 @@ class HomePageState extends State<HomePage> {
         Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: translateColor(translateType(mode6)),
+            color: Colors.transparent,
                 boxShadow: [
                   BoxShadow(
                     color: const Color.fromRGBO(0, 0, 0, 1).withOpacity(0.3),
@@ -498,7 +511,7 @@ class HomePageState extends State<HomePage> {
             child: GestureDetector(
                 onTap: () => loadData(),
                 child: Card(
-                    margin: const EdgeInsets.all(2.0),
+                margin: EdgeInsets.zero,
                     color: const Color.fromRGBO(255, 255, 255, 1),
                     child: SizedBox(
                         child: Padding(
@@ -508,7 +521,8 @@ class HomePageState extends State<HomePage> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Expanded(
-                                  child: _cardBody("mason", newValues, "Mason", imageWidth: 180),
+                                  child: _cardBody("mason", newValues, "Mason",
+                                      imageWidth: 180),
                                 ),
                               ],
                             )))))),
@@ -548,7 +562,7 @@ class HomePageState extends State<HomePage> {
       Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: translateColor(translateType(mode1)),
+            color: Colors.transparent,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.3),
@@ -560,7 +574,7 @@ class HomePageState extends State<HomePage> {
           child: GestureDetector(
               onTap: () => loadData(),
               child: Card(
-                  margin: const EdgeInsets.all(2.0),
+                margin: EdgeInsets.zero,
                   color: const Color.fromRGBO(255, 255, 255, 1),
                   child: SizedBox(
                       child: Padding(
@@ -583,10 +597,17 @@ class HomePageState extends State<HomePage> {
                                       child: FutureBuilder(
                                           future: globalValues,
                                           builder: (context, snapshot) {
-                                            if (snapshot.hasData && snapshot.data is Map<int, int>) {
-                                              return _buildAllModesFor("ballard", snapshot.data as Map<int, int>);
+                                            if (snapshot.hasData &&
+                                                snapshot.data
+                                                    is Map<int, int>) {
+                                              return _buildAllModesFor(
+                                                  "ballard",
+                                                  snapshot.data
+                                                      as Map<int, int>);
                                             } else {
-                                              return const Center(child: CircularProgressIndicator());
+                                              return const Center(
+                                                  child:
+                                                      CircularProgressIndicator());
                                             }
                                           }))),
                             ],
@@ -594,7 +615,7 @@ class HomePageState extends State<HomePage> {
       Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: translateColor(translateType(mode2)),
+            color: Colors.transparent,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.3),
@@ -606,7 +627,7 @@ class HomePageState extends State<HomePage> {
           child: GestureDetector(
               onTap: () => loadData(),
               child: Card(
-                  margin: const EdgeInsets.all(2.0),
+                margin: EdgeInsets.zero,
                   color: const Color.fromRGBO(255, 255, 255, 1),
                   child: SizedBox(
                       child: Padding(
@@ -629,10 +650,17 @@ class HomePageState extends State<HomePage> {
                                       child: FutureBuilder(
                                           future: globalValues,
                                           builder: (context, snapshot) {
-                                            if (snapshot.hasData && snapshot.data is Map<int, int>) {
-                                              return _buildAllModesFor("grace", snapshot.data as Map<int, int>);
+                                            if (snapshot.hasData &&
+                                                snapshot.data
+                                                    is Map<int, int>) {
+                                              return _buildAllModesFor(
+                                                  "grace",
+                                                  snapshot.data
+                                                      as Map<int, int>);
                                             } else {
-                                              return const Center(child: CircularProgressIndicator());
+                                              return const Center(
+                                                  child:
+                                                      CircularProgressIndicator());
                                             }
                                           }))),
                             ],
@@ -640,7 +668,7 @@ class HomePageState extends State<HomePage> {
       Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: translateColor(translateType(mode3)),
+            color: Colors.transparent,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.3),
@@ -652,7 +680,7 @@ class HomePageState extends State<HomePage> {
           child: GestureDetector(
               onTap: () => loadData(),
               child: Card(
-                  margin: const EdgeInsets.all(2.0),
+                margin: EdgeInsets.zero,
                   color: const Color.fromRGBO(255, 255, 255, 1),
                   child: SizedBox(
                       child: Padding(
@@ -675,10 +703,17 @@ class HomePageState extends State<HomePage> {
                                       child: FutureBuilder(
                                           future: globalValues,
                                           builder: (context, snapshot) {
-                                            if (snapshot.hasData && snapshot.data is Map<int, int>) {
-                                              return _buildAllModesFor("warsaw", snapshot.data as Map<int, int>);
+                                            if (snapshot.hasData &&
+                                                snapshot.data
+                                                    is Map<int, int>) {
+                                              return _buildAllModesFor(
+                                                  "warsaw",
+                                                  snapshot.data
+                                                      as Map<int, int>);
                                             } else {
-                                              return const Center(child: CircularProgressIndicator());
+                                              return const Center(
+                                                  child:
+                                                      CircularProgressIndicator());
                                             }
                                           }))),
                             ],
@@ -686,7 +721,7 @@ class HomePageState extends State<HomePage> {
       Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: translateColor(translateType(mode4)),
+            color: Colors.transparent,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.3),
@@ -698,7 +733,7 @@ class HomePageState extends State<HomePage> {
           child: GestureDetector(
               onTap: () => loadData(),
               child: Card(
-                  margin: const EdgeInsets.all(2.0),
+                margin: EdgeInsets.zero,
                   color: const Color.fromRGBO(255, 255, 255, 1),
                   child: SizedBox(
                       child: Padding(
@@ -707,15 +742,17 @@ class HomePageState extends State<HomePage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                                Expanded(
-                                  child: _cardBody("chesapeake", globalValues, "Chesapeake", imageWidth: 180),
-                                ),
+                              Expanded(
+                                child: _cardBody(
+                                    "chesapeake", globalValues, "Chesapeake",
+                                    imageWidth: 180),
+                              ),
                             ],
                           )))))),
       Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: translateColor(translateType(mode5)),
+            color: Colors.transparent,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.3),
@@ -727,7 +764,7 @@ class HomePageState extends State<HomePage> {
           child: GestureDetector(
               onTap: () => loadData(),
               child: Card(
-                  margin: const EdgeInsets.all(2.0),
+                margin: EdgeInsets.zero,
                   color: const Color.fromRGBO(255, 255, 255, 1),
                   child: SizedBox(
                       child: Padding(
@@ -736,15 +773,17 @@ class HomePageState extends State<HomePage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                                Expanded(
-                                  child: _cardBody("champions", globalValues, "Champions", imageWidth: 180),
-                                ),
+                              Expanded(
+                                child: _cardBody(
+                                    "champions", globalValues, "Champions",
+                                    imageWidth: 180),
+                              ),
                             ],
                           )))))),
       Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: translateColor(translateType(mode6)),
+            color: Colors.transparent,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.3),
@@ -756,7 +795,7 @@ class HomePageState extends State<HomePage> {
           child: GestureDetector(
               onTap: () => loadData(),
               child: Card(
-                  margin: const EdgeInsets.all(2.0),
+                margin: EdgeInsets.zero,
                   color: const Color.fromRGBO(255, 255, 255, 1),
                   child: SizedBox(
                       child: Padding(
@@ -765,12 +804,15 @@ class HomePageState extends State<HomePage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                                Expanded(
-                                  child: _cardBody("mason", globalValues, "Mason", imageWidth: 180),
-                                ),
+                              Expanded(
+                                child: _cardBody("mason", globalValues, "Mason",
+                                    imageWidth: 180),
+                              ),
                             ],
                           )))))),
     ];
+
+    loadData();
 
     // Fetch weather immediately and set up periodic updates
     _fetchWeather();
@@ -788,11 +830,13 @@ class HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final mediaQuery = MediaQuery.of(context);
+    final screenWidth = mediaQuery.size.width;
+    final screenHeight = mediaQuery.size.height;
 
     double padding = screenWidth * 0.02;
-    double topPadding = screenHeight * 0.05;
+    final double topPadding = mediaQuery.padding.top + kToolbarHeight + 30;
+    final double bottomPadding = mediaQuery.padding.bottom + 30;
     double carouselHeight = screenHeight * 0.3;
     double mapHeight = screenHeight * 0.30;
     double mapWidth = screenWidth * 0.85;
@@ -824,47 +868,144 @@ class HomePageState extends State<HomePage> {
     }
 
     return Scaffold(
+      backgroundColor: const Color.fromRGBO(0, 0, 0, 1),
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Live Counter'), // Title of the page
-        backgroundColor: const Color.fromRGBO(69, 0, 132, 1), // Color of the app bar
-        foregroundColor: const Color.fromRGBO(255, 255, 255, 1), // Color of the text in the app bar
-      ),
-      body: Padding(
-        padding:
-            EdgeInsets.symmetric(horizontal: padding).copyWith(top: topPadding), // Responsive padding
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start, // Align to top
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center, // Center the live counter list
-              crossAxisAlignment: CrossAxisAlignment.center, // Center the live counter vertically
-              children: [
-                Container(
-                  margin: EdgeInsets.only(top: screenHeight * 0.03), // Top margin
-                  height: screenHeight * .70, // Set height to 70% of screen height
-                  width: screenWidth * 0.80, // Set width to 80% of screen width
-                  decoration: BoxDecoration(
-                    color: const Color.fromRGBO(247, 247, 249, 1), // Background color of the container
-                    borderRadius: BorderRadius.circular(12), // Rounded corners
-                  ),
-                  child: PageView(
-                    children: [
-                      GridView.count(
-                        padding: const EdgeInsets.all(10), // Add padding around the grid
-                        crossAxisCount: 1, // Show one card at a time
-                        shrinkWrap: true, // Let the grid take only the space it needs
-                        mainAxisSpacing: 5.0, // Space between rows
-                        crossAxisSpacing: 5.0, // Space between columns
-                        childAspectRatio: 3.4286, // Aspect ratio for 350x120 cards
-                        children: commuter, // Use the commuter list for the grid
+            Text(
+              'Live Counter',
+              style: GoogleFonts.montserrat(fontWeight: FontWeight.w500),
+            ),
+            const SizedBox(width: 8),
+            IconButton(
+              icon: const Icon(Icons.help_outline),
+              tooltip: 'Instructions',
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Instructions'),
+                    content: const Text('The Live Counter page provides real-time parking availability for JMU commuter lots. Each card represents a different lot, showing the number of available spaces for each parking type (commuter, faculty, accessible, electric).'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Close'),
                       ),
                     ],
                   ),
-                ),
-              ],
+                );
+              },
             ),
           ],
         ),
+        backgroundColor: Colors.transparent,
+        foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        flexibleSpace: const AppBarDateTimeCenter(),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            tooltip: 'Sign Out',
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pop(context);
+            },
+          ),
+        ],
+      ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomLeft,
+            end: Alignment.topRight,
+            colors: [
+              Color.fromRGBO(0, 0, 0, 1),
+              Color.fromRGBO(69, 0, 132, 1),
+            ],
+          ),
+        ),
+        child: Stack(
+          children: [
+            Positioned(
+              left: -120,
+              bottom: -140,
+              child: _meshOrb(
+                size: 320,
+                colors: const [
+                  Color.fromRGBO(0, 0, 0, 0.75),
+                  Color.fromRGBO(32, 0, 64, 0.15),
+                ],
+              ),
+            ),
+            Positioned(
+              right: -90,
+              top: -120,
+              child: _meshOrb(
+                size: 340,
+                colors: const [
+                  Color.fromRGBO(90, 28, 148, 0.6),
+                  Color.fromRGBO(69, 0, 132, 0.0),
+                ],
+              ),
+            ),
+            Positioned(
+              left: 40,
+              top: 180,
+              child: _meshOrb(
+                size: 220,
+                colors: const [
+                  Color.fromRGBO(120, 56, 178, 0.28),
+                  Color.fromRGBO(69, 0, 132, 0.0),
+                ],
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: padding)
+                  .copyWith(top: topPadding, bottom: bottomPadding),
+              child: Center(
+                child: SizedBox(
+                  height: double.infinity,
+                  width: screenWidth * 0.80,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: PageView(
+                      children: [
+                        GridView.count(
+                          padding: const EdgeInsets.all(10),
+                          crossAxisCount: 1,
+                          shrinkWrap: true,
+                          mainAxisSpacing: 5.0,
+                          crossAxisSpacing: 5.0,
+                          childAspectRatio: 3.4286,
+                          children: commuter,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _meshOrb({required double size, required List<Color> colors}) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(colors: colors),
       ),
     );
   }
@@ -882,4 +1023,3 @@ class HomePageState extends State<HomePage> {
     return mode;
   }
 }
-// ...existing code...

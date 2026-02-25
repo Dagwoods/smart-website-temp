@@ -11,6 +11,41 @@ import 'homepage/account_page.dart'; // Import AccountPage
 import 'homepage/signup_page.dart'; // Import SignUpPage
 import 'homepage/predicter.dart'; // Import PredicterPage
 
+/// Shows a scrollable instructions dialog. Call from any page: showInstructionsDialog(context, title, content)
+void showInstructionsDialog(BuildContext context, String title, String content) {
+  showDialog(
+    context: context,
+    builder: (context) {
+      return Dialog(
+        child: SizedBox(
+          width: 400,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text(content),
+                  const SizedBox(height: 24),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Close'),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -30,9 +65,17 @@ class SmartParking extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
             seedColor: const Color.fromRGBO(255, 255, 255, 1)),
         useMaterial3: true,
-        bottomNavigationBarTheme: BottomNavigationBarThemeData(
-          selectedItemColor: const Color.fromRGBO(255, 255, 255, 1),
-          unselectedItemColor: const Color(0xFF2C2C2C),
+        appBarTheme: const AppBarTheme(
+          shape: Border(
+            bottom: BorderSide(
+              color: Color.fromRGBO(203, 182, 119, .75),
+              width: .5,
+            ),
+          ),
+        ),
+        bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+          selectedItemColor: Color.fromRGBO(255, 255, 255, 1),
+          unselectedItemColor: Color(0xFF2C2C2C),
         ),
       ),
       home: const AuthGate(),
@@ -73,7 +116,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
+      extendBody: true,
       bottomNavigationBar: SafeArea(
+        top: false,
         child: Padding(
           padding: const EdgeInsets.only(bottom: 12.0),
           child: SizedBox(
@@ -84,7 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: 56,
                 decoration: BoxDecoration(
                   // off-white box behind the pill
-                  color: const Color.fromRGBO(69, 0, 132, 1),
+                  color: const Color.fromRGBO(69, 0, 132, .32),
                   borderRadius: BorderRadius.circular(32),
                   boxShadow: [
                     BoxShadow(
@@ -97,8 +143,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Theme(
                   data: Theme.of(context).copyWith(
                     navigationBarTheme: NavigationBarThemeData(
-                      iconTheme: MaterialStateProperty.all(const IconThemeData(color: Colors.white)),
-                      labelTextStyle: MaterialStateProperty.all(const TextStyle(color: Colors.white)),
+                      backgroundColor: Colors.transparent,
+                      surfaceTintColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                      iconTheme: WidgetStateProperty.all(
+                          const IconThemeData(color: Colors.white)),
+                      labelTextStyle: WidgetStateProperty.all(
+                          const TextStyle(color: Colors.white)),
                     ),
                   ),
                   child: NavigationBar(
@@ -106,10 +157,11 @@ class _MyHomePageState extends State<MyHomePage> {
                     onDestinationSelected: (int index) {
                       setState(() {
                         currentPageIndex = index;
-                        _pageKey = UniqueKey(); // Generate new key to force page refresh
+                        _pageKey =
+                            UniqueKey(); // Generate new key to force page refresh
                       });
                     },
-                    indicatorColor: const Color.fromRGBO(203, 182, 119, 1),
+                    indicatorColor: const Color.fromRGBO(203, 182, 119, .75),
                     selectedIndex: currentPageIndex,
                     destinations: const <NavigationDestination>[
                       NavigationDestination(
@@ -235,8 +287,6 @@ class AccountTab extends StatelessWidget {
   }
 }
 
-              
-
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
@@ -261,4 +311,3 @@ class AuthGate extends StatelessWidget {
     );
   }
 }
-

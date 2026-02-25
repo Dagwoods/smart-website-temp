@@ -160,7 +160,7 @@ int translateId(String name) {
       result = 12;
       break;
     default:
-      debugPrint("Case not included" + name);
+      debugPrint("Case not included$name");
       break;
   }
   return result;
@@ -469,7 +469,7 @@ Future<Map<int, int>?> fetchAll() async {
           result[zoneId] = value;
         }
       }
-      debugPrint("load successful " + result.length.toString());
+      debugPrint("load successful ${result.length}");
       return result;
     } else {
       debugPrint("API request failed with status: ${response.statusCode}");

@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:smart_parking/homepage/account_page.dart';
-import 'package:smart_parking/homepage/home_page.dart';
 
 import 'package:smart_parking/homepage/login_page.dart';
 
@@ -16,6 +15,7 @@ class AuthService {
           .createUserWithEmailAndPassword(email: email, password: password);
 
       await Future.delayed(const Duration(seconds: 1));
+        if (!context.mounted) return;
       Navigator.pushReplacement(context,
           MaterialPageRoute(builder: (BuildContext context) => Login()));
     } on FirebaseAuthException catch (e) {
@@ -45,6 +45,7 @@ class AuthService {
           .signInWithEmailAndPassword(email: email, password: password);
 
       await Future.delayed(const Duration(seconds: 1));
+        if (!context.mounted) return;
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -70,6 +71,7 @@ class AuthService {
   Future<void> signout({required BuildContext context}) async {
     await FirebaseAuth.instance.signOut();
     await Future.delayed(const Duration(seconds: 1));
+    if (!context.mounted) return;
     Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (BuildContext context) => Login()));
   }

@@ -13,8 +13,8 @@ class Coordinate {
   double distanceTo(Coordinate other) {
     const earthRadius = 6371; // Radius of the Earth in kilometers
 
-    double lat1 = toRadians(this.latitude);
-    double lon1 = toRadians(this.longitude);
+    double lat1 = toRadians(latitude);
+    double lon1 = toRadians(longitude);
     double lat2 = toRadians(other.latitude);
     double lon2 = toRadians(other.longitude);
 
@@ -34,12 +34,13 @@ class Coordinate {
   }
 
   //Print the Latitude and Longitude of Coordinate Object
+  @override
   String toString() {
     return latitude.toString() + longitude.toString();
   }
 
   //Compares two Coordinates to see if they have the same Latitude and Longitude
   bool isEqual(Coordinate two) {
-    return (this.longitude == two.longitude && this.latitude == two.latitude);
+    return (longitude == two.longitude && latitude == two.latitude);
   }
 }
