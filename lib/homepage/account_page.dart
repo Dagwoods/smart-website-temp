@@ -278,7 +278,7 @@ class _AccountPageState extends State<AccountPage> {
                                     width: double.infinity,
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: const Color.fromRGBO(247, 247, 249, 0.85),
+                                      color: const Color.fromRGBO(247, 247, 249, 0.75),
                                       borderRadius: BorderRadius.circular(14),
                                       border: Border.all(color: Colors.grey.shade300),
                                     ),
@@ -335,32 +335,16 @@ class _AccountPageState extends State<AccountPage> {
                                                 ),
                                                 const SizedBox(height: 8),
                                                 Align(
-                                                  alignment:
-                                                      Alignment.centerLeft,
+                                                  alignment: Alignment.centerLeft,
                                                   child: SizedBox(
                                                     width: 160,
                                                     child: ElevatedButton(
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        backgroundColor:
-                                                        const Color
-                                                          .fromRGBO(
-                                                          69,
-                                                          0,
-                                                          132,
-                                                          1),
-                                                        foregroundColor:
-                                                            const Color
-                                                                .fromRGBO(
-                                                                255,
-                                                                255,
-                                                                255,
-                                                                1),
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor: const Color.fromRGBO(69, 0, 132, 1),
+                                                        foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
                                                       ),
-                                                      onPressed:
-                                                          _updateHomeAddress,
-                                                      child: const Text(
-                                                          'Save Address'),
+                                                      onPressed: _updateHomeAddress,
+                                                      child: const Text('Save Address'),
                                                     ),
                                                   ),
                                                 ),
