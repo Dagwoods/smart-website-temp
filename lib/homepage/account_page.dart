@@ -278,7 +278,7 @@ class _AccountPageState extends State<AccountPage> {
                                     width: double.infinity,
                                     padding: const EdgeInsets.all(12),
                                     decoration: BoxDecoration(
-                                      color: const Color.fromRGBO(247, 247, 249, 1),
+                                      color: const Color.fromRGBO(247, 247, 249, 0.85),
                                       borderRadius: BorderRadius.circular(14),
                                       border: Border.all(color: Colors.grey.shade300),
                                     ),
