@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../services/mapping_service.dart';
+import '../services/prediction_service.dart';
 
 class PredicterPage extends StatefulWidget {
   const PredicterPage({Key? key}) : super(key: key);
@@ -14,11 +16,175 @@ class _PredicterPageState extends State<PredicterPage> {
   String? _selectedAddress;
   String? _selectedGarage;
   List<String> _savedAddresses = [];
-  List<String> _garageNames = [];
   bool _loading = true;
-
+  bool _calculating = false;
+  
+  final MappingService _mappingService = MappingService();
+  final PredictionService _predictionService = PredictionService();
   final TextEditingController _addressController = TextEditingController();
-  final TextEditingController _garageController = TextEditingController();
+  
+  // JMU parking garages
+  final List<String> _jmuGarages = [
+    'Chesapeake Hall Parking Deck',
+    'Grace Street Parking Deck',
+    'Warsaw Avenue Parking Deck',
+    'Champions Drive Parking Deck',
+    'Ballard Hall Parking Deck',
+    'Mason Parking Deck',
+  ];
+
+  Future<void> _calculatePrediction() async {
+    // Validate inputs
+    if (_selectedAddress == null || _selectedAddress!.trim().isEmpty) {
+      setState(() {
+        _predictionMessage = 'Please enter a starting location.';
+      });
+      return;
+    }
+    
+    if (_selectedGarage == null || _selectedGarage!.trim().isEmpty) {
+      setState(() {
+        _predictionMessage = 'Please enter a parking garage.';
+      });
+      return;
+    }
+    
+    setState(() {
+      _calculating = true;
+      _predictionMessage = 'Calculating route and arrival time...';
+    });
+    
+    try {
+      // Get garage address - either from predefined list or use input directly
+      String garageAddress = _mappingService.getGarageAddress(_selectedGarage!) ?? _selectedGarage!;
+      
+      print('Starting calculation...');
+      print('From: $_selectedAddress');
+      print('To: $garageAddress');
+      
+      // Get route information
+      final routeInfo = await _mappingService.getRouteInfo(_selectedAddress!, garageAddress);
+      
+      if (routeInfo != null) {
+        final travelMinutes = routeInfo['duration_minutes'];
+        final distanceKm = routeInfo['distance_km'];
+        final arrivalTime = _mappingService.calculateArrivalTime(travelMinutes);
+        final formattedArrivalTime = _mappingService.formatArrivalTime(arrivalTime);
+        
+        // Now get parking prediction for the arrival time
+        print('Getting prediction for arrival time: $arrivalTime');
+        final prediction = await _predictionService.getPrediction(
+          arrivalTime: arrivalTime,
+          garageName: _selectedGarage!,
+          zoneType: 'commuter', // Could be made configurable
+        );
+        
+        setState(() {
+          if (prediction != null) {
+            // Success - show route info and prediction
+            _predictionMessage = '''
+Route Information:
+From: $_selectedAddress
+To: $_selectedGarage
+Travel Time: $travelMinutes minutes
+Distance: $distanceKm km
+
+ESTIMATED ARRIVAL: $formattedArrivalTime
+
+${_predictionService.formatPredictionMessage(prediction)}''';
+          } else {
+            // Route worked but prediction failed
+            _predictionMessage = '''
+Route Information:
+From: $_selectedAddress
+To: $_selectedGarage
+Travel Time: $travelMinutes minutes
+Distance: $distanceKm km
+
+ESTIMATED ARRIVAL: $formattedArrivalTime
+
+PARKING PREDICTION: Currently unavailable
+The prediction service is not responding. Please ensure the Flask API is running.
+
+To start the prediction service:
+1. Navigate to smart_parking/APPAPI/
+2. Run: python appAPI.py''';
+          }
+        });
+      } else {
+        setState(() {
+          _predictionMessage = '''Unable to calculate route.
+
+Debug Info:
+From: $_selectedAddress
+To: $garageAddress
+
+Please check:
+- Starting location is valid
+- Parking garage name/address is correct  
+- Internet connection is working
+- API key is configured
+
+Check the console/logs for more detailed error information.
+
+Try using full addresses like:
+"123 Main St, Harrisonburg, VA"''';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _predictionMessage = 'Error calculating route: $e';
+      });
+    } finally {
+      setState(() {
+        _calculating = false;
+      });
+    }
+  }
+
+  Widget _buildPredictionDisplay() {
+    // Check if we have arrival time info to highlight
+    if (_predictionMessage.contains('ESTIMATED ARRIVAL:')) {
+      final parts = _predictionMessage.split('ESTIMATED ARRIVAL: ');
+      if (parts.length >= 2) {
+        final beforeArrival = parts[0];
+        final afterArrivalFull = parts[1];
+        final arrivalParts = afterArrivalFull.split('\n');
+        final arrivalTime = arrivalParts[0];
+        final afterArrival = arrivalParts.length > 1 ? arrivalParts.sublist(1).join('\n') : '';
+        
+        return RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            style: const TextStyle(color: Color.fromRGBO(0, 0, 0, 1), fontSize: 14),
+            children: [
+              TextSpan(text: beforeArrival),
+              const TextSpan(
+                text: 'ESTIMATED ARRIVAL: ',
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
+              TextSpan(
+                text: arrivalTime,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromRGBO(69, 0, 132, 1),
+                ),
+              ),
+              if (afterArrival.isNotEmpty) TextSpan(text: '\n$afterArrival'),
+            ],
+          ),
+        );
+      }
+    }
+    
+    // Default display for messages without arrival time
+    return Text(
+      _predictionMessage,
+      style: const TextStyle(color: Colors.grey),
+      textAlign: TextAlign.center,
+    );
+  }
 
   @override
   void initState() {
@@ -37,7 +203,6 @@ class _PredicterPageState extends State<PredicterPage> {
     try {
       final userDoc = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
       List<String> addresses = [];
-      List<String> garages = [];
       if (userDoc.exists && userDoc.data() != null) {
         final data = userDoc.data()!;
         // Home address
@@ -53,27 +218,12 @@ class _PredicterPageState extends State<PredicterPage> {
             }
           }
         }
-        // Favorite garage
-        final favoriteGarage = data['favoriteGarage'];
-        if (favoriteGarage != null && favoriteGarage['address'] != null && favoriteGarage['address'].toString().isNotEmpty) {
-          garages.add(favoriteGarage['address']);
-        }
-        // All saved garages
-        if (data['savedGarages'] != null && data['savedGarages'] is List) {
-          for (var g in data['savedGarages']) {
-            if (g is String && g.isNotEmpty && !garages.contains(g)) {
-              garages.add(g);
-            }
-          }
-        }
       }
       setState(() {
         _savedAddresses = addresses;
-        _garageNames = garages;
         _selectedAddress = null;
         _selectedGarage = null;
         _addressController.text = '';
-        _garageController.text = '';
         _loading = false;
       });
     } catch (e) {
@@ -123,7 +273,6 @@ class _PredicterPageState extends State<PredicterPage> {
                               });
                             },
                             fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-                              controller.text = _addressController.text;
                               return TextField(
                                 controller: controller,
                                 focusNode: focusNode,
@@ -137,7 +286,6 @@ class _PredicterPageState extends State<PredicterPage> {
                                 onChanged: (value) {
                                   setState(() {
                                     _selectedAddress = value;
-                                    _addressController.text = value;
                                   });
                                 },
                                 onEditingComplete: onEditingComplete,
@@ -170,68 +318,120 @@ class _PredicterPageState extends State<PredicterPage> {
                         const SizedBox(height: 16),
                         SizedBox(
                           width: double.infinity,
-                          child: Autocomplete<String>(
-                            optionsBuilder: (TextEditingValue textEditingValue) {
-                              if (_garageNames.isEmpty) {
-                                return const Iterable<String>.empty();
-                              }
-                              return _garageNames.where((String option) {
-                                return option.toLowerCase().contains(textEditingValue.text.toLowerCase());
-                              });
-                            },
-                            displayStringForOption: (option) => option,
-                            onSelected: (String selection) {
+                          child: DropdownButtonFormField<String>(
+                            value: _selectedGarage,
+                            decoration: InputDecoration(
+                              labelText: 'Desired Parking Garage',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                            ),
+                            hint: const Text('Select a parking garage'),
+                            items: _jmuGarages.map((String garage) {
+                              return DropdownMenuItem<String>(
+                                value: garage,
+                                child: Text(garage),
+                              );
+                            }).toList(),
+                            onChanged: (String? newValue) {
                               setState(() {
-                                _selectedGarage = selection;
-                                _garageController.text = selection;
+                                _selectedGarage = newValue;
                               });
-                            },
-                            fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-                              controller.text = _garageController.text;
-                              return TextField(
-                                controller: controller,
-                                focusNode: focusNode,
-                                decoration: InputDecoration(
-                                  labelText: 'Desired Parking Garage',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                  hintText: _garageNames.isEmpty ? 'No saved garages' : 'Type or select saved garage',
-                                ),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _selectedGarage = value;
-                                    _garageController.text = value;
-                                  });
-                                },
-                                onEditingComplete: onEditingComplete,
-                              );
-                            },
-                            optionsViewBuilder: (context, onSelected, options) {
-                              if (_garageNames.isEmpty) {
-                                return Material(
-                                  child: ListTile(
-                                    title: const Text('No saved garages'),
-                                  ),
-                                );
-                              }
-                              return Material(
-                                child: ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  itemCount: options.length,
-                                  itemBuilder: (context, index) {
-                                    final option = options.elementAt(index);
-                                    return ListTile(
-                                      title: Text(option),
-                                      onTap: () => onSelected(option),
-                                    );
-                                  },
-                                ),
-                              );
                             },
                           ),
                         ),
                         const SizedBox(height: 24),
+                        // COMMENTED OUT TEST BUTTONS - keeping code for future development
+                        // Test API button
+                        // Center(
+                        //   child: SizedBox(
+                        //     width: 160,
+                        //     child: ElevatedButton(
+                        //       style: ElevatedButton.styleFrom(
+                        //         backgroundColor: Colors.orange,
+                        //         foregroundColor: Colors.white,
+                        //         textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                        //       ),
+                        //       onPressed: _calculating ? null : () async {
+                        //         setState(() {
+                        //           _calculating = true;
+                        //           _predictionMessage = 'Testing API key...';
+                        //         });
+                        //         
+                        //         final isWorking = await _mappingService.testApiKey();
+                        //         
+                        //         setState(() {
+                        //           _calculating = false;
+                        //           _predictionMessage = isWorking 
+                        //               ? 'API Key is working! Check console for details.'
+                        //               : 'API Key test failed. Check console for error details.';
+                        //         });
+                        //       },
+                        //       child: const Text('Test API'),
+                        //     ),
+                        //   ),
+                        // ),
+                        // const SizedBox(height: 16),
+                        // Test Prediction API button
+                        // Center(
+                        //   child: SizedBox(
+                        //     width: 160,
+                        //     child: ElevatedButton(
+                        //       style: ElevatedButton.styleFrom(
+                        //         backgroundColor: Colors.green,
+                        //         foregroundColor: Colors.white,
+                        //         textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                        //       ),
+                        //       onPressed: _calculating ? null : () async {
+                        //         setState(() {
+                        //           _calculating = true;
+                        //           _predictionMessage = 'Testing prediction API...';
+                        //         });
+                        //         
+                        //         final isWorking = await _predictionService.testConnection();
+                        //         
+                        //         if (isWorking) {
+                        //           // Test actual prediction
+                        //           final testPrediction = await _predictionService.getPrediction(
+                        //             arrivalTime: DateTime.now().add(const Duration(minutes: 15)),
+                        //             garageName: 'Chesapeake Hall Parking Deck',
+                        //             zoneType: 'commuter',
+                        //           );
+                        //           
+                        //           setState(() {
+                        //             _calculating = false;
+                        //             if (testPrediction != null) {
+                        //               _predictionMessage = '''
+                        // Prediction API Test: SUCCESS
+                        // 
+                        // Test prediction for Chesapeake Hall:
+                        // ${_predictionService.formatPredictionMessage(testPrediction)}
+                        // 
+                        // The prediction service is working correctly!''';
+                        //             } else {
+                        //               _predictionMessage = 'Prediction API connected but prediction failed. Check Flask API logs.';
+                        //             }
+                        //           });
+                        //         } else {
+                        //           setState(() {
+                        //             _calculating = false;
+                        //             _predictionMessage = '''
+                        // Prediction API Test: FAILED
+                        // 
+                        // Cannot connect to the Flask API server.
+                        // 
+                        // To start the prediction service:
+                        // 1. Open terminal in smart_parking/APPAPI/
+                        // 2. Run: python appAPI.py
+                        // 3. Ensure Flask is running on http://localhost:5000''';
+                        //           });
+                        //         }
+                        //       },
+                        //       child: const Text('Test Prediction'),
+                        //     ),
+                        //   ),
+                        // ),
+                        // const SizedBox(height: 24),
                         Center(
                           child: SizedBox(
                             width: 160, // Set a much smaller width
@@ -241,12 +441,17 @@ class _PredicterPageState extends State<PredicterPage> {
                                 foregroundColor: const Color.fromARGB(255, 255, 255, 255),
                                 textStyle: const TextStyle(fontWeight: FontWeight.bold),
                               ),
-                              onPressed: () {
-                                setState(() {
-                                  _predictionMessage = 'Calculation complete! (This is a placeholder message)';
-                                });
-                              },
-                              child: const Text('Calculate'),
+                              onPressed: _calculating ? null : _calculatePrediction, // Disable when calculating
+                              child: _calculating 
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                      ),
+                                    )
+                                  : const Text('Calculate'),
                             ),
                           ),
                         ),
@@ -276,11 +481,7 @@ class _PredicterPageState extends State<PredicterPage> {
                             const SizedBox(height: 8),
                             Expanded(
                               child: Center(
-                                child: Text(
-                                  _predictionMessage,
-                                  style: const TextStyle(color: Colors.grey),
-                                  textAlign: TextAlign.center,
-                                ),
+                                child: _buildPredictionDisplay(),
                               ),
                             ),
                           ],

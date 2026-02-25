@@ -38,41 +38,15 @@ class _AccountPageState extends State<AccountPage> {
     }
   }
 
-  Future<void> _deleteSavedGarage(String garage) async {
-    final User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      List<String> updatedGarages = List<String>.from(savedGarages);
-      updatedGarages.remove(garage);
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-        'savedGarages': updatedGarages,
-      });
-      setState(() {
-        savedGarages = updatedGarages;
-      });
-    }
-  }
   String? username;
   String? homeAddress;
-  String? selectedOption; // Stores the DISPLAY name (e.g., "Grace Deck")
-  String? savedGarageKey; // Stores the actual key (e.g., "graceCommuter")
   bool isLoading = true;
   List<String> savedAddresses = [];
-  List<String> savedGarages = [];
 
   final TextEditingController _addressController = TextEditingController();
 
   // API key for Google Places Autocomplete
   final String googleApiKey = "AIzaSyBFrTsiYcpETNVw4fnwXZHREUx8XvB91jQ"; // <-- Replace with your actual API Key
-
-  // Mapping that applies the Address to the normal text for the garage, the address is used in the traffic_page script. Also saving an identifier for the favorite garage feature
-  final Map<String, Map<String, String>> garageMapping = {
-    "Grace Deck": {"address": "258 E Grace St, Harrisonburg, VA", "identifier": "graceCommuter"},
-    "Warsaw Deck": {"address": "157 Warsaw Ave, Harrisonburg, VA", "identifier": "warsawDeck"},
-    "Champions Deck": {"address": "280 Champions Dr, Harrisonburg, VA", "identifier": "championsDeck"},
-    "Ballard Deck": {"address": "1500 E Campus Dr, Harrisonburg, VA", "identifier": "ballardDeck"},
-    "Mason Deck": {"address": "715 S Mason St, Harrisonburg, VA", "identifier": "masonDeck"},
-    "Chesapeake Deck": {"address": "421 Chesapeake Ave, Harrisonburg, VA", "identifier": "chesapeakeDeck"},
-  };
 
   @override
   void initState() {
@@ -91,24 +65,14 @@ class _AccountPageState extends State<AccountPage> {
         if (userDoc.exists) {
           final data = userDoc.data() as Map<String, dynamic>;
           List<String> loadedAddresses = [];
-          List<String> loadedGarages = [];
           if (data['savedAddresses'] != null && data['savedAddresses'] is List) {
             loadedAddresses = List<String>.from(data['savedAddresses']);
-          }
-          if (data['savedGarages'] != null && data['savedGarages'] is List) {
-            loadedGarages = List<String>.from(data['savedGarages']);
           }
           setState(() {
             username = data['username'];
             homeAddress = data['homeAddress'];
-            savedGarageKey = data['favoriteGarage']?['identifier'];
-            selectedOption = garageMapping.keys.firstWhere(
-              (key) => garageMapping[key]?['identifier'] == savedGarageKey,
-              orElse: () => garageMapping.keys.first,
-            );
             _addressController.text = homeAddress ?? '';
             savedAddresses = loadedAddresses;
-            savedGarages = loadedGarages;
             isLoading = false;
           });
         } else {
@@ -165,43 +129,6 @@ class _AccountPageState extends State<AccountPage> {
       }
     }
   }
-
-  // saves the selected garage once the save garage button is selected
-  Future<void> _saveDropdownSelection() async {
-    final User? user = FirebaseAuth.instance.currentUser;
-
-    if (user != null && selectedOption != null) {
-      try {
-        String? garageIdentifier = garageMapping[selectedOption]?['identifier'];
-        String? garageAddress = garageMapping[selectedOption]?['address'];
-
-        if (garageIdentifier != null && garageAddress != null) {
-          // Add to savedGarages if not already present
-          List<String> updatedGarages = List<String>.from(savedGarages);
-          if (!updatedGarages.contains(garageAddress)) {
-            updatedGarages.add(garageAddress);
-          }
-          await FirebaseFirestore.instance.collection('users').doc(user.uid).update({
-            'favoriteGarage': {'identifier': garageIdentifier, 'address': garageAddress},
-            'savedGarages': updatedGarages,
-          });
-
-          setState(() {
-            savedGarages = updatedGarages;
-          });
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Favorite garage saved successfully!')),
-          );
-        }
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error saving favorite garage: $e')),
-        );
-      }
-    }
-  }
-
 
   // Actually building of the application
   @override
@@ -290,55 +217,6 @@ class _AccountPageState extends State<AccountPage> {
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 16),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 180.0), // Adjust this value as needed
-                                    child: Column(
-                                      children: [
-                                        SizedBox(
-                                          width: double.infinity,
-                                          child: DropdownButtonFormField<String>(
-                                            value: selectedOption,
-                                            hint: const Text("Select your favorite parking garage"),
-                                            items: garageMapping.keys.map((String displayName) {
-                                              return DropdownMenuItem<String>(
-                                                value: displayName,
-                                                child: Text(displayName),
-                                              );
-                                            }).toList(),
-                                            onChanged: (value) {
-                                              setState(() {
-                                                selectedOption = value;
-                                                savedGarageKey = garageMapping[value]?['identifier'];
-                                              });
-                                            },
-                                            decoration: InputDecoration(
-                                              filled: true,
-                                              fillColor: const Color.fromRGBO(247, 247, 249, 1),
-                                              border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(14),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Center(
-                                          child: SizedBox(
-                                            width: 160,
-                                            child: ElevatedButton(
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Theme.of(context).appBarTheme.backgroundColor ?? const Color.fromRGBO(69, 0, 132, 1),
-                                                foregroundColor: const Color.fromARGB(255, 255, 255, 255),
-                                                textStyle: const TextStyle(fontWeight: FontWeight.bold),
-                                              ),
-                                              onPressed: _saveDropdownSelection,
-                                              child: const Text('Save Garage'),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
                                 ],
                               ),
                             ),
@@ -389,57 +267,6 @@ class _AccountPageState extends State<AccountPage> {
                                                               constraints: const BoxConstraints(),
                                                               tooltip: 'Delete',
                                                               onPressed: () => _deleteSavedAddress(addr),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      );
-                                                    },
-                                                  ),
-                                                ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Container(
-                                    width: double.infinity,
-                                    height: 220,
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: const Color.fromRGBO(247, 247, 249, 1),
-                                      borderRadius: BorderRadius.circular(14),
-                                      border: Border.all(color: Colors.grey.shade300),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const Text('Saved Garages', style: TextStyle(fontWeight: FontWeight.bold)),
-                                        const SizedBox(height: 8),
-                                        Expanded(
-                                          child: savedGarages.isEmpty
-                                              ? const Text('No saved garages', style: TextStyle(color: Colors.grey))
-                                              : Scrollbar(
-                                                  child: ListView.builder(
-                                                    itemCount: savedGarages.length,
-                                                    itemBuilder: (context, index) {
-                                                      final garage = savedGarages[index];
-                                                      return Padding(
-                                                        padding: const EdgeInsets.symmetric(vertical: 2.0),
-                                                        child: Row(
-                                                          children: [
-                                                            Expanded(
-                                                              child: Text(
-                                                                garage,
-                                                                overflow: TextOverflow.ellipsis,
-                                                                style: const TextStyle(fontSize: 14),
-                                                              ),
-                                                            ),
-                                                            IconButton(
-                                                              icon: const Icon(Icons.close, size: 18, color: Colors.red),
-                                                              padding: EdgeInsets.zero,
-                                                              constraints: const BoxConstraints(),
-                                                              tooltip: 'Delete',
-                                                              onPressed: () => _deleteSavedGarage(garage),
                                                             ),
                                                           ],
                                                         ),

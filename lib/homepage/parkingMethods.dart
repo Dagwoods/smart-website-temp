@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 //import 'package:mysql1/mysql1.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:io';
 String translateName(String name) {
   String result = "";
   switch (name) {
@@ -451,23 +450,14 @@ Future<String> fetchOne(String deck) async {
 */
 Future<Map<int, int>?> fetchAll() async {
   Map<int, int> result = {};
-  //const String apiUrl = 'https://www.jmu.edu/cgi-bin/parking_sign_data.cgi?hash=53616c7465645f5f4c03eadd986acf07775e314a27e46ac7b36f35b8887e4e67ea5489a0733beab3e908f947f1a121913b0c1bbaa8d855d0a76820c2ce3b3b4f9c78a1a4638afe82e66c5e27e2c5af01|869835tg89dhkdnbnsv5sg5wg0vmcf4mfcfc2qwm5968unmeh5'; // The correct, working endpoint
-  const String apiUrl = 'https://134.126.152.145:5000/parking';
-
+  const String apiUrl = 'http://127.0.0.1:8000/decks'; // The correct, working endpoint
 
   try {
-    // Create a custom SecurityContext that accepts self-signed certificates
-    final HttpClient httpClient = HttpClient();
-    httpClient.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
-    
-    final request = await httpClient.getUrl(Uri.parse(apiUrl));
-    final response = await request.close();
-    final String body = await response.transform(utf8.decoder).join();
-    httpClient.close();
-    
+    final response = await http.get(Uri.parse(apiUrl));
+
     if (response.statusCode == 200) {
       // The API returns a JSON list of dictionaries [{name: ..., value: ...}]
-      final List<dynamic> data = json.decode(body);
+      final List<dynamic> data = json.decode(response.body);
 
       // Iterate through the list and map the deck name (from API) to the ID (used by Flutter)
       for (var deckData in data) {
