@@ -1,7 +1,7 @@
 name: smart_parking
 description: "A new Flutter project."
 
-# Prevent accidental publishing to pub.dev.
+# Prevent accidental publishing to pub.dev.     1
 publish_to: 'none'
 
 version: 1.0.0+1
