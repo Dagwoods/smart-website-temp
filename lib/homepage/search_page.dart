@@ -353,8 +353,12 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final double topPanelInset = mediaQuery.padding.top + kToolbarHeight + 12;
-    final double bottomPanelInset = mediaQuery.padding.bottom + 56;
-    const double panelVerticalOffset = 40;
+    final double bottomPanelInset = mediaQuery.padding.bottom + 12;
+    const double panelVerticalOffset = 0;
+    final double pageHorizontalPadding =
+      (mediaQuery.size.width * 0.02).clamp(12.0, 28.0).toDouble();
+    final double containerWidth =
+      (mediaQuery.size.width * 0.80).clamp(320.0, 1100.0).toDouble();
     final List<Marker> visibleMarkers = _sortedMarkersForCategory(selectedType);
 
     return Scaffold(
@@ -460,15 +464,15 @@ class _SearchPageState extends State<SearchPage> {
               child: Padding(
                 padding: EdgeInsets.only(
                   top: topPanelInset,
-                  left: 16,
-                  right: 16,
+                  left: pageHorizontalPadding,
+                  right: pageHorizontalPadding,
                   bottom: bottomPanelInset,
                 ),
                 child: Center(
                   child: Transform.translate(
                     offset: const Offset(0, panelVerticalOffset),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 1100),
+                    child: SizedBox(
+                      width: containerWidth,
                       child: Row(
                         children: [
                           Expanded(

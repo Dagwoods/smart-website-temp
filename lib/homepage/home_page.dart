@@ -18,8 +18,6 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-//Timer for Live Parking Update
-late Timer timer;
 int mode1 = 1;
 Key key1 = UniqueKey();
 int mode2 = 1;
@@ -32,7 +30,7 @@ BitmapDescriptor lotIcon =
     BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue);
 BitmapDescriptor garageIcon =
     BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueYellow);
-
+/*
 Future<void> launchGoogleMaps(double latitude, double longitude) async {
   final Uri googleMapsUrl = Uri(
     scheme: 'https',
@@ -107,10 +105,11 @@ Set<Marker> markerGarage = {
       }),
   // ... (other garage markers) ...
 };
-
+*/
 class HomePageState extends State<HomePage> {
   String _weatherStatus = "Fetching weather...";
   String _weatherAlert = "No alerts";
+  Timer? _refreshTimer;
 
   late List<Container> commuter;
   Future<Map<int, int>?> globalValues = fetchAll();
@@ -131,7 +130,8 @@ class HomePageState extends State<HomePage> {
     mapController = controller;
   }
 
-  Future<void> _fetchWeather() async {
+  /*Future<void> _fetchWeather() async {
+    if (!mounted) return;
     setState(() {
       _weatherStatus = "Fetching weather data...";
     });
@@ -139,11 +139,12 @@ class HomePageState extends State<HomePage> {
     String weather = await getWeatherStatus();
     String alert = _checkWeatherAlert(weather);
 
+    if (!mounted) return;
     setState(() {
       _weatherStatus = weather;
       _weatherAlert = alert;
     });
-  }
+  }*/
 
   Future<String> getWeatherStatus() async {
     try {
@@ -169,7 +170,7 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-  String _checkWeatherAlert(String weather) {
+  /*String _checkWeatherAlert(String weather) {
     if (weather.contains("snow") || weather.contains("Snow")) {
       return "⚠️ Snowy conditions!";
     } else if (weather.contains("rain") || weather.contains("Rain")) {
@@ -178,7 +179,7 @@ class HomePageState extends State<HomePage> {
       return "🔥 Extreme heat!";
     }
     return "No alerts";
-  }
+  }*/
 
   void _navigateToWeatherPage() {
     Navigator.push(
@@ -275,12 +276,9 @@ class HomePageState extends State<HomePage> {
       final int? value = data.containsKey(id) ? data[id] : null;
 
       if (value == null) {
-        // skip missing entries, show zeros if desired by changing this condition
         continue;
       }
 
-      // Right-align the numeric value and its label so they sit at the right
-      // side of the card; titles remain centered above.
       modeWidgets.add(Padding(
         padding: const EdgeInsets.only(right: 16.0),
         child: Column(
@@ -315,7 +313,6 @@ class HomePageState extends State<HomePage> {
       return const Center(child: Text("No data"));
     }
 
-    // Align the wrap to the right so the mode columns start at the box's right edge
     return Align(
       alignment: Alignment.centerRight,
       child: Wrap(
@@ -328,10 +325,10 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> loadData() async {
-    // Fetch fresh values
     final newValues = fetchAll();
 
     // Update commuter list using the fresh future (will rebuild cards with new FutureBuilder)
+    if (!mounted) return;
     setState(() {
       commuter = [
         // Ballard
@@ -529,7 +526,7 @@ class HomePageState extends State<HomePage> {
       ];
     });
   }
-
+/*
   void filterMarkers(String setting) {
     Set<Marker> result = {};
 
@@ -551,11 +548,11 @@ class HomePageState extends State<HomePage> {
       markers = result;
     });
   }
-
+*/
   @override
   void initState() {
     super.initState();
-    markers = residentLot.union(markerGarage).union(commuterLot);
+    ///markers = residentLot.union(markerGarage).union(commuterLot);
 
     // Build initial commuter list using globalValues and same card structure
     commuter = [
@@ -814,17 +811,19 @@ class HomePageState extends State<HomePage> {
 
     loadData();
 
-    // Fetch weather immediately and set up periodic updates
+    /*// Fetch weather immediately and set up periodic updates
     _fetchWeather();
-    timer = Timer.periodic(const Duration(seconds: 8), (_) {
+    _refreshTimer = Timer.periodic(const Duration(seconds: 8), (_) {
+      if (!mounted) return;
       _fetchWeather();
       loadData();
-    });
+    });*/
   }
 
   @override
   void dispose() {
-    timer.cancel();
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
     super.dispose();
   }
 
@@ -835,13 +834,15 @@ class HomePageState extends State<HomePage> {
     final screenHeight = mediaQuery.size.height;
 
     double padding = screenWidth * 0.02;
-    final double topPadding = mediaQuery.padding.top + kToolbarHeight + 30;
-    final double bottomPadding = mediaQuery.padding.bottom + 30;
+    final double topPadding = mediaQuery.padding.top + kToolbarHeight + 12;
+    final double bottomPadding = mediaQuery.padding.bottom + 12;
     double carouselHeight = screenHeight * 0.3;
     double mapHeight = screenHeight * 0.30;
     double mapWidth = screenWidth * 0.85;
     double buttonWidth = screenWidth * 0.45;
     double buttonHeight = screenWidth * 0.10;
+    final double containerWidth =
+      (screenWidth * 0.80).clamp(320.0, 1100.0).toDouble();
 
     if (screenWidth < 400) {
       carouselHeight = screenHeight * 0.35;
@@ -970,7 +971,7 @@ class HomePageState extends State<HomePage> {
               child: Center(
                 child: SizedBox(
                   height: double.infinity,
-                  width: screenWidth * 0.80,
+                  width: containerWidth,
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.transparent,

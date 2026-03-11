@@ -723,8 +723,8 @@ class _TrafficPageState extends State<TrafficPage> {
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
     final double topPanelInset = mediaQuery.padding.top + kToolbarHeight + 12;
-    final double bottomPanelInset = mediaQuery.padding.bottom + 56;
-    const double panelVerticalOffset = 40;
+    final double bottomPanelInset = mediaQuery.padding.bottom + 12;
+    const double panelVerticalOffset = 0;
     final double pageHorizontalPadding =
         (mediaQuery.size.width * 0.028).clamp(14.0, 34.0).toDouble();
     final double pageVerticalPadding =
@@ -747,6 +747,9 @@ class _TrafficPageState extends State<TrafficPage> {
         (contentScale * 0.9).clamp(0.82, 1.02).toDouble();
     final double rightPanelIconSize =
         (22 * rightPanelScale).clamp(18.0, 24.0).toDouble();
+    final double containerWidth =
+      (mediaQuery.size.width * 0.80).clamp(320.0, 1100.0).toDouble();
+    const double cardsGap = 4.0; // match map/filter gap
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(0, 0, 0, 1),
@@ -849,409 +852,384 @@ class _TrafficPageState extends State<TrafficPage> {
             Positioned.fill(
               child: Padding(
                 padding: EdgeInsets.only(
-                  top: topPanelInset + pageVerticalPadding,
+                  top: topPanelInset,
                   left: pageHorizontalPadding,
                   right: pageHorizontalPadding,
-                  bottom: bottomPanelInset + pageVerticalPadding,
+                  bottom: bottomPanelInset,
                 ),
-                child: Transform.translate(
-                  offset: const Offset(0, panelVerticalOffset),
-                  child: MediaQuery(
-                    data: mediaQuery.copyWith(
-                      textScaler: TextScaler.linear(contentScale),
-                    ),
-                    child: IconTheme(
-                      data: IconThemeData(
-                        size: (24 * contentScale).clamp(20.0, 30.0).toDouble(),
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            child: Card(
-                              color: const Color.fromRGBO(247, 247, 249, 1),
-                              child: Padding(
-                                padding: EdgeInsets.all(cardPadding),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.max,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const Icon(Icons.event,
-                                            color: Color.fromRGBO(
-                                                158, 158, 158, 1)),
-                                        const SizedBox(width: 8),
-                                        Text('Campus Events',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .titleMedium),
-                                        const Spacer(),
-                                        _eventsLoading
-                                            ? const SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child:
-                                                    CircularProgressIndicator(
-                                                        strokeWidth: 2))
-                                            : IconButton(
-                                                icon: const Icon(Icons.refresh),
-                                                tooltip: 'Refresh',
-                                                onPressed: _fetchEvents,
-                                              ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      _eventsInfo,
-                                      style: const TextStyle(fontSize: 16),
-                                    ),
-                                    const Divider(),
-                                    Text('Today\'s Events:',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleSmall),
-                                    const SizedBox(height: 4),
-                                    Expanded(
-                                      child: _todaysEvents.isNotEmpty
-                                          ? ScrollConfiguration(
-                                              behavior: ScrollConfiguration.of(
-                                                      context)
-                                                  .copyWith(scrollbars: true),
-                                              child: ListView.builder(
-                                                physics:
-                                                    const AlwaysScrollableScrollPhysics(),
-                                                itemCount: _todaysEvents.length,
-                                                itemBuilder: (context, index) {
-                                                  final event =
-                                                      _todaysEvents[index];
-                                                  return Container(
-                                                    width: double.infinity,
-                                                    margin: EdgeInsets.only(
-                                                        bottom: itemSpacing),
-                                                    padding: EdgeInsets.all(
-                                                        itemPadding),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.white,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              8),
-                                                    ),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Text(
-                                                          event['title'] ??
-                                                              'Campus Event',
-                                                          style: const TextStyle(
-                                                              fontSize: 16,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold),
-                                                          maxLines: 2,
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                        ),
-                                                        const SizedBox(
-                                                            height: 2),
-                                                        Text(
-                                                          '⏰ ${event['time'] ?? 'TBD'}',
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 14,
-                                                                  color: Colors
-                                                                      .blue),
-                                                        ),
-                                                        if (event['location'] !=
-                                                            null)
-                                                          Text(
-                                                            '📍 ${event['location']}',
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        14,
-                                                                    color: Colors
-                                                                        .green),
-                                                          ),
-                                                      ],
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            )
-                                          : Container(
-                                              width: double.infinity,
-                                              padding: const EdgeInsets.all(12),
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey.shade100,
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: const Center(
-                                                child: Text(
-                                                  '📅 No events scheduled for today',
-                                                  style: TextStyle(
-                                                      fontSize: 14,
-                                                      color: Colors.grey),
-                                                  textAlign: TextAlign.center,
-                                                ),
-                                              ),
-                                            ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
+                child: Center(
+                  child: SizedBox(
+                    width: containerWidth,
+                    height: double.infinity,
+                    child: Transform.translate(
+                      offset: const Offset(panelVerticalOffset, panelVerticalOffset),
+                      child: MediaQuery(
+                        data: mediaQuery.copyWith(
+                          textScaler: TextScaler.linear(contentScale),
+                        ),
+                        child: IconTheme(
+                          data: IconThemeData(
+                            size: (24 * contentScale).clamp(20.0, 30.0).toDouble(),
                           ),
-                          SizedBox(width: sectionGap),
-                          Expanded(
-                            child: MediaQuery(
-                              data: mediaQuery.copyWith(
-                                textScaler: TextScaler.linear(rightPanelScale),
-                              ),
-                              child: IconTheme(
-                                data: IconThemeData(size: rightPanelIconSize),
-                                child: Card(
-                                  color: const Color.fromRGBO(247, 247, 249, 1),
-                                  child: Padding(
-                                    padding: EdgeInsets.all(cardPadding),
-                                    child: SingleChildScrollView(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                                        children: [
-                                          // TRAFFIC SECTION
-                                          Padding(
-                                            padding: EdgeInsets.only(bottom: sectionGap * 0.5),
-                                            child: Row(
+                          child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  flex: 6,
+                                  child: Card(
+                                      color: const Color.fromRGBO(247, 247, 249, 1),
+                                      child: Padding(
+                                        padding: EdgeInsets.all(cardPadding),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisSize: MainAxisSize.max,
+                                          children: [
+                                            Row(
                                               children: [
-                                                const Icon(Icons.traffic, color: Color.fromRGBO(158, 158, 158, 1)),
+                                                const Icon(Icons.event, color: Color.fromRGBO(158, 158, 158, 1)),
                                                 const SizedBox(width: 8),
-                                                Text('Traffic', style: Theme.of(context).textTheme.titleMedium),
+                                                Text('Campus Events', style: Theme.of(context).textTheme.titleMedium),
                                                 const Spacer(),
-                                                _trafficLoading || _incidentsLoading
+                                                _eventsLoading
                                                     ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                                                     : IconButton(
                                                         icon: const Icon(Icons.refresh),
                                                         tooltip: 'Refresh',
-                                                        onPressed: _fetchTrafficAndIncidents,
+                                                        onPressed: _fetchEvents,
                                                       ),
                                               ],
                                             ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(bottom: sectionGap * 0.2),
-                                            child: Text(_trafficInfo, style: const TextStyle(fontSize: 16)),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(bottom: sectionGap * 0.2),
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text('Traffic Alerts & Incidents:', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold)),
-                                                if (_trafficAlert.isNotEmpty && _trafficAlert != "No alerts")
-                                                  Text(_trafficAlert, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                                              ],
-                                            ),
-                                          ),
-                                          _trafficIncidents.isNotEmpty
-                                              ? ScrollConfiguration(
-                                                  behavior: ScrollConfiguration.of(context).copyWith(scrollbars: true),
-                                                  child: ListView.builder(
-                                                    shrinkWrap: true,
-                                                    physics: const NeverScrollableScrollPhysics(),
-                                                    itemCount: _trafficIncidents.length,
-                                                    itemBuilder: (context, index) {
-                                                      final incident = _trafficIncidents[index];
-                                                      return Container(
-                                                        width: double.infinity,
-                                                        margin: EdgeInsets.only(bottom: itemSpacing),
-                                                        padding: EdgeInsets.symmetric(horizontal: itemPadding, vertical: itemSpacing + 1),
-                                                        decoration: BoxDecoration(
-                                                          color: Colors.white,
-                                                          borderRadius: BorderRadius.circular(8),
-                                                        ),
-                                                        child: Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: [
-                                                            Text(
-                                                              incident['description'] ?? 'Traffic incident',
-                                                              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                                                              maxLines: 2,
-                                                              overflow: TextOverflow.ellipsis,
+                                            const SizedBox(height: 8),
+                                            Text(_eventsInfo, style: const TextStyle(fontSize: 16)),
+                                            const Divider(),
+                                            Text('Today\'s Events:', style: Theme.of(context).textTheme.titleSmall),
+                                            const SizedBox(height: 4),
+                                            Expanded(
+                                              child: _todaysEvents.isNotEmpty
+                                                  ? ScrollConfiguration(
+                                                      behavior: ScrollConfiguration.of(context).copyWith(scrollbars: true),
+                                                      child: ListView.builder(
+                                                        physics: const AlwaysScrollableScrollPhysics(),
+                                                        itemCount: _todaysEvents.length,
+                                                        itemBuilder: (context, index) {
+                                                          final event = _todaysEvents[index];
+                                                          return Container(
+                                                            width: double.infinity,
+                                                            margin: EdgeInsets.only(bottom: itemSpacing),
+                                                            padding: EdgeInsets.all(itemPadding),
+                                                            decoration: BoxDecoration(
+                                                              color: Colors.white,
+                                                              borderRadius: BorderRadius.circular(8),
                                                             ),
-                                                            if (incident['delay'] > 0)
-                                                              Text('Delay: ${incident['delay']} min', style: const TextStyle(fontSize: 12, color: Colors.red)),
+                                                            child: Column(
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              children: [
+                                                                Text(
+                                                                  event['title'] ?? 'Campus Event',
+                                                                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                                                  maxLines: 2,
+                                                                  overflow: TextOverflow.ellipsis,
+                                                                ),
+                                                                const SizedBox(height: 2),
+                                                                Text('⏰ ${event['time'] ?? 'TBD'}', style: const TextStyle(fontSize: 14, color: Colors.blue)),
+                                                                if (event['location'] != null)
+                                                                  Text('📍 ${event['location']}', style: const TextStyle(fontSize: 14, color: Colors.green)),
+                                                              ],
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                    )
+                                                  : Container(
+                                                      width: double.infinity,
+                                                      padding: const EdgeInsets.all(12),
+                                                      decoration: BoxDecoration(
+                                                        color: Colors.grey.shade100,
+                                                        borderRadius: BorderRadius.circular(8),
+                                                      ),
+                                                      child: const Center(
+                                                        child: Text(
+                                                          '📅 No events scheduled for today',
+                                                          style: TextStyle(fontSize: 14, color: Colors.grey),
+                                                          textAlign: TextAlign.center,
+                                                        ),
+                                                      ),
+                                                    ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                ),
+                                const SizedBox(width: cardsGap),
+                                Expanded(
+                                  flex: 4,
+                                  child: Card(
+                                      color: const Color.fromRGBO(247, 247, 249, 1),
+                                      child: Padding(
+                                        padding: EdgeInsets.all(cardPadding),
+                                        child: MediaQuery(
+                                          data: mediaQuery.copyWith(
+                                            textScaler: TextScaler.linear(rightPanelScale),
+                                          ),
+                                          child: IconTheme(
+                                            data: IconThemeData(size: rightPanelIconSize),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                                              children: [
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                    children: [
+                                                      Padding(
+                                                        padding: EdgeInsets.only(bottom: sectionGap * 0.5),
+                                                        child: Row(
+                                                          children: [
+                                                            const Icon(Icons.traffic, color: Color.fromRGBO(158, 158, 158, 1)),
+                                                            const SizedBox(width: 8),
+                                                            Text('Traffic', style: Theme.of(context).textTheme.titleMedium),
+                                                            const Spacer(),
+                                                            _trafficLoading || _incidentsLoading
+                                                                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                                                                : IconButton(
+                                                                    icon: const Icon(Icons.refresh),
+                                                                    tooltip: 'Refresh',
+                                                                    onPressed: _fetchTrafficAndIncidents,
+                                                                  ),
                                                           ],
                                                         ),
-                                                      );
-                                                    },
-                                                  ),
-                                                )
-                                              : Container(
-                                                  width: double.infinity,
-                                                  padding: const EdgeInsets.all(12),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.grey.shade100,
-                                                    borderRadius: BorderRadius.circular(8),
-                                                  ),
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                                    children: [
-                                                      const Text('No incidents reported right now', style: TextStyle(fontSize: 14, color: Colors.grey), textAlign: TextAlign.center),
-                                                      if (_trafficAlert.isNotEmpty && _trafficAlert != "No alerts")
-                                                        Text(_trafficAlert, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
-                                                    ],
-                                                  ),
-                                                ),
-                                          Padding(
-                                            padding: EdgeInsets.symmetric(vertical: sectionGap * 0.7),
-                                            child: Divider(height: 1, thickness: 1, color: Colors.grey.shade400),
-                                          ),
-                                          // WEATHER SECTION
-                                          Padding(
-                                            padding: EdgeInsets.only(bottom: sectionGap * 0.5),
-                                            child: Row(
-                                              children: [
-                                                const Icon(Icons.cloud, color: Color.fromRGBO(158, 158, 158, 1)),
-                                                const SizedBox(width: 7),
-                                                Text('Weather', style: Theme.of(context).textTheme.titleMedium),
-                                                const Spacer(),
-                                                _weatherLoading || _forecastLoading
-                                                    ? const SizedBox(width: 19, height: 19, child: CircularProgressIndicator(strokeWidth: 2))
-                                                    : IconButton(
-                                                        icon: const Icon(Icons.refresh),
-                                                        iconSize: 21,
-                                                        padding: EdgeInsets.zero,
-                                                        constraints: BoxConstraints(minWidth: 30 + itemPadding / 2, minHeight: 30 + itemPadding / 2),
-                                                        visualDensity: VisualDensity.compact,
-                                                        tooltip: 'Refresh',
-                                                        onPressed: _fetchWeatherAndForecast,
                                                       ),
-                                              ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(bottom: sectionGap * 0.2),
-                                            child: Text(_weatherInfo, style: const TextStyle(fontSize: 18), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(bottom: sectionGap * 0.2),
-                                            child: Text(_weatherAlert, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(bottom: sectionGap * 0.2),
-                                            child: Text('Today\'s Forecast:', style: Theme.of(context).textTheme.titleSmall),
-                                          ),
-                                          _forecast.isNotEmpty
-                                              ? Listener(
-                                                  onPointerSignal: _onForecastPointerSignal,
-                                                  child: Column(
-                                                    children: [
-                                                      SizedBox(
-                                                        height: chipMaxHeight,
-                                                        child: ListView.separated(
-                                                          controller: _forecastScrollController,
-                                                          primary: false,
-                                                          physics: const AlwaysScrollableScrollPhysics(),
-                                                          scrollDirection: Axis.horizontal,
-                                                          padding: EdgeInsets.zero,
-                                                          itemCount: _forecast.length,
-                                                          separatorBuilder: (_, __) => const SizedBox(width: 10),
-                                                          itemBuilder: (context, index) {
-                                                            final f = _forecast[index];
-                                                            return Center(
-                                                              child: ConstrainedBox(
-                                                                constraints: BoxConstraints(maxHeight: chipMaxHeight),
-                                                                child: LayoutBuilder(
-                                                                  builder: (context, constraints) {
-                                                                    final double chipHeight = constraints.maxHeight.isFinite ? constraints.maxHeight : chipMaxHeight;
-                                                                    final double timeFontSize = (chipHeight * 0.13).clamp(11.0, 14.0).toDouble();
-                                                                    final double detailFontSize = (chipHeight * 0.10).clamp(9.0, 12.0).toDouble();
+                                                      Padding(
+                                                        padding: EdgeInsets.only(bottom: sectionGap * 0.2),
+                                                        child: Text(_trafficInfo, style: const TextStyle(fontSize: 16)),
+                                                      ),
+                                                      Padding(
+                                                        padding: EdgeInsets.only(bottom: sectionGap * 0.2),
+                                                        child: Text(
+                                                          'Traffic Alerts & Incidents:',
+                                                          style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: _trafficIncidents.isNotEmpty
+                                                            ? ScrollConfiguration(
+                                                                behavior: ScrollConfiguration.of(context).copyWith(scrollbars: true),
+                                                                child: ListView.builder(
+                                                                  physics: const AlwaysScrollableScrollPhysics(),
+                                                                  itemCount: _trafficIncidents.length,
+                                                                  itemBuilder: (context, index) {
+                                                                    final incident = _trafficIncidents[index];
                                                                     return Container(
-                                                                      width: chipWidth,
-                                                                      padding: EdgeInsets.symmetric(horizontal: itemPadding, vertical: itemSpacing + 2),
+                                                                      width: double.infinity,
+                                                                      margin: EdgeInsets.only(bottom: itemSpacing),
+                                                                      padding: EdgeInsets.symmetric(horizontal: itemPadding, vertical: itemSpacing + 1),
                                                                       decoration: BoxDecoration(
                                                                         color: Colors.white,
-                                                                        borderRadius: BorderRadius.circular(10),
+                                                                        borderRadius: BorderRadius.circular(8),
                                                                       ),
                                                                       child: Column(
-                                                                        mainAxisAlignment: MainAxisAlignment.center,
-                                                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                                                        crossAxisAlignment: CrossAxisAlignment.start,
                                                                         children: [
                                                                           Text(
-                                                                            (() {
-                                                                              final dt = f['time'] as DateTime;
-                                                                              final hour = dt.hour == 0 || dt.hour == 12 ? 12 : dt.hour % 12;
-                                                                              final ampm = dt.hour < 12 ? 'AM' : 'PM';
-                                                                              return '$hour $ampm';
-                                                                            })(),
-                                                                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: timeFontSize),
-                                                                          ),
-                                                                          const SizedBox(height: 2),
-                                                                          Text(
-                                                                            (() {
-                                                                              final desc = f['desc'] ?? '';
-                                                                              return desc.isNotEmpty ? '${desc[0].toUpperCase()}${desc.substring(1)}' : '--';
-                                                                            })(),
-                                                                            style: TextStyle(fontSize: detailFontSize),
-                                                                            maxLines: 1,
+                                                                            incident['description'] ?? 'Traffic incident',
+                                                                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                                                                            maxLines: 2,
                                                                             overflow: TextOverflow.ellipsis,
                                                                           ),
-                                                                          Text(
-                                                                            f['temp'] != null ? '${f['temp'].toStringAsFixed(1)}°F' : '--',
-                                                                            style: TextStyle(fontSize: detailFontSize),
-                                                                          ),
+                                                                          if (incident['delay'] > 0)
+                                                                            Text('Delay: ${incident['delay']} min', style: const TextStyle(fontSize: 12, color: Colors.red)),
                                                                         ],
                                                                       ),
                                                                     );
                                                                   },
                                                                 ),
+                                                              )
+                                                            : Container(
+                                                                width: double.infinity,
+                                                                padding: const EdgeInsets.all(12),
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors.grey.shade100,
+                                                                  borderRadius: BorderRadius.circular(8),
+                                                                ),
+                                                                child: Center(
+                                                                  child: Text(
+                                                                    (_trafficAlert.isEmpty || _trafficAlert == "No alerts")
+                                                                        ? 'No alerts or incidents right now'
+                                                                        : _trafficAlert,
+                                                                    style: TextStyle(
+                                                                      fontSize: 14,
+                                                                      color: (_trafficAlert.isEmpty || _trafficAlert == "No alerts")
+                                                                          ? Colors.grey
+                                                                          : Colors.black87,
+                                                                      fontWeight: (_trafficAlert.isEmpty || _trafficAlert == "No alerts")
+                                                                          ? FontWeight.normal
+                                                                          : FontWeight.bold,
+                                                                    ),
+                                                                    textAlign: TextAlign.center,
+                                                                  ),
+                                                                ),
                                                               ),
-                                                            );
-                                                          },
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        height: 22,
-                                                        child: SliderTheme(
-                                                          data: SliderTheme.of(context).copyWith(
-                                                            trackHeight: 3,
-                                                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
-                                                            overlayShape: SliderComponentShape.noOverlay,
-                                                          ),
-                                                          child: Slider(
-                                                            min: 0,
-                                                            max: 1,
-                                                            value: _forecastScrollValue,
-                                                            onChanged: _onForecastSliderChanged,
-                                                          ),
-                                                        ),
                                                       ),
                                                     ],
                                                   ),
-                                                )
-                                              : Container(
-                                                  width: double.infinity,
-                                                  padding: const EdgeInsets.all(12),
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.grey.shade100,
-                                                    borderRadius: BorderRadius.circular(8),
-                                                  ),
-                                                  child: const Center(
-                                                    child: Text('No forecast data available', style: TextStyle(fontSize: 12, color: Colors.grey), textAlign: TextAlign.center),
+                                                ),
+                                                Padding(
+                                                  padding: EdgeInsets.symmetric(vertical: sectionGap * 0.7),
+                                                  child: Divider(height: 1, thickness: 1, color: Colors.grey.shade400),
+                                                ),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                    children: [
+                                                      Padding(
+                                                        padding: EdgeInsets.only(bottom: sectionGap * 0.5),
+                                                        child: Row(
+                                                          children: [
+                                                            const Icon(Icons.cloud, color: Color.fromRGBO(158, 158, 158, 1)),
+                                                            const SizedBox(width: 7),
+                                                            Text('Weather', style: Theme.of(context).textTheme.titleMedium),
+                                                            const Spacer(),
+                                                            _weatherLoading || _forecastLoading
+                                                                ? const SizedBox(width: 19, height: 19, child: CircularProgressIndicator(strokeWidth: 2))
+                                                                : IconButton(
+                                                                    icon: const Icon(Icons.refresh),
+                                                                    iconSize: 21,
+                                                                    padding: EdgeInsets.zero,
+                                                                    constraints: BoxConstraints(minWidth: 30 + itemPadding / 2, minHeight: 30 + itemPadding / 2),
+                                                                    visualDensity: VisualDensity.compact,
+                                                                    tooltip: 'Refresh',
+                                                                    onPressed: _fetchWeatherAndForecast,
+                                                                  ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Padding(
+                                                        padding: EdgeInsets.only(bottom: sectionGap * 0.2),
+                                                        child: Text(_weatherInfo, style: const TextStyle(fontSize: 18), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                                      ),
+                                                      Padding(
+                                                        padding: EdgeInsets.only(bottom: sectionGap * 0.2),
+                                                        child: Text(_weatherAlert, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                                      ),
+                                                      Padding(
+                                                        padding: EdgeInsets.only(bottom: sectionGap * 0.2),
+                                                        child: Text('Today\'s Forecast:', style: Theme.of(context).textTheme.titleSmall),
+                                                      ),
+                                                      Expanded(
+                                                        child: _forecast.isNotEmpty
+                                                            ? Listener(
+                                                                onPointerSignal: _onForecastPointerSignal,
+                                                                child: Column(
+                                                                  children: [
+                                                                    SizedBox(
+                                                                      height: chipMaxHeight,
+                                                                      child: ListView.separated(
+                                                                        controller: _forecastScrollController,
+                                                                        primary: false,
+                                                                        physics: const AlwaysScrollableScrollPhysics(),
+                                                                        scrollDirection: Axis.horizontal,
+                                                                        padding: EdgeInsets.zero,
+                                                                        itemCount: _forecast.length,
+                                                                        separatorBuilder: (_, __) => const SizedBox(width: 10),
+                                                                        itemBuilder: (context, index) {
+                                                                          final f = _forecast[index];
+                                                                          return Center(
+                                                                            child: ConstrainedBox(
+                                                                              constraints: BoxConstraints(maxHeight: chipMaxHeight),
+                                                                              child: LayoutBuilder(
+                                                                                builder: (context, constraints) {
+                                                                                  final double chipHeight = constraints.maxHeight.isFinite ? constraints.maxHeight : chipMaxHeight;
+                                                                                  final double timeFontSize = (chipHeight * 0.13).clamp(11.0, 14.0).toDouble();
+                                                                                  final double detailFontSize = (chipHeight * 0.10).clamp(9.0, 12.0).toDouble();
+                                                                                  return Container(
+                                                                                    width: chipWidth,
+                                                                                    padding: EdgeInsets.symmetric(horizontal: itemPadding, vertical: itemSpacing + 2),
+                                                                                    decoration: BoxDecoration(
+                                                                                      color: Colors.white,
+                                                                                      borderRadius: BorderRadius.zero,
+                                                                                      border: Border.all(color: Colors.grey.shade400, width: 1),
+                                                                                    ),
+                                                                                    child: Column(
+                                                                                      mainAxisAlignment: MainAxisAlignment.center,
+                                                                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                                                                      children: [
+                                                                                        Text(
+                                                                                          (() {
+                                                                                            final dt = f['time'] as DateTime;
+                                                                                            final hour = dt.hour == 0 || dt.hour == 12 ? 12 : dt.hour % 12;
+                                                                                            final ampm = dt.hour < 12 ? 'AM' : 'PM';
+                                                                                            return '$hour $ampm';
+                                                                                          })(),
+                                                                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: timeFontSize),
+                                                                                        ),
+                                                                                        const SizedBox(height: 2),
+                                                                                        Text(
+                                                                                          (() {
+                                                                                            final desc = f['desc'] ?? '';
+                                                                                            return desc.isNotEmpty ? '${desc[0].toUpperCase()}${desc.substring(1)}' : '--';
+                                                                                          })(),
+                                                                                          style: TextStyle(fontSize: detailFontSize),
+                                                                                          maxLines: 1,
+                                                                                          overflow: TextOverflow.ellipsis,
+                                                                                        ),
+                                                                                        Text(
+                                                                                          f['temp'] != null ? '${f['temp'].toStringAsFixed(1)}°F' : '--',
+                                                                                          style: TextStyle(fontSize: detailFontSize),
+                                                                                        ),
+                                                                                      ],
+                                                                                    ),
+                                                                                  );
+                                                                                },
+                                                                              ),
+                                                                            ),
+                                                                          );
+                                                                        },
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: 22,
+                                                                      child: SliderTheme(
+                                                                        data: SliderTheme.of(context).copyWith(
+                                                                          trackHeight: 3,
+                                                                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                                                                          overlayShape: SliderComponentShape.noOverlay,
+                                                                        ),
+                                                                        child: Slider(
+                                                                          min: 0,
+                                                                          max: 1,
+                                                                          value: _forecastScrollValue,
+                                                                          onChanged: _onForecastSliderChanged,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              )
+                                                            : Container(
+                                                                width: double.infinity,
+                                                                padding: const EdgeInsets.all(12),
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors.grey.shade100,
+                                                                  borderRadius: BorderRadius.circular(8),
+                                                                ),
+                                                                child: const Center(
+                                                                  child: Text('No forecast data available', style: TextStyle(fontSize: 12, color: Colors.grey), textAlign: TextAlign.center),
+                                                                ),
+                                                              ),
+                                                      ),
+                                                    ],
                                                   ),
                                                 ),
-                                        ],
+                                              ],
+                                            ),
+                                          ),
+                                        ),
                                       ),
                                     ),
-                                  ),
                                 ),
-                              ),
-                            ),
+                              ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),

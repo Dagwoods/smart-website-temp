@@ -34,6 +34,9 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final double horizontalPadding = screenWidth < 400 ? 12.0 : (screenWidth < 600 ? 24.0 : 48.0);
+    final double verticalSpacing = screenWidth < 400 ? 8.0 : 12.0;
     return Scaffold(
       backgroundColor: const Color.fromRGBO(0, 0, 0, 1),
       resizeToAvoidBottomInset: true,
@@ -85,34 +88,44 @@ class _LoginState extends State<Login> {
             ),
             SafeArea(
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: verticalSpacing,
+                ),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildImage(),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Smart Parking Assistant',
-                            style: GoogleFonts.montserrat(
-                              color: const Color.fromRGBO(230, 230, 235, 1),
-                              fontSize: 24,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          _emailAddress(),
-                          const SizedBox(height: 6),
-                          _password(),
-                          const SizedBox(height: 0),
-                          _forgotPasswordButton(context),
-                          const SizedBox(height: 10),
-                          _signin(context),
-                        ],
+                    Padding(
+                      padding: EdgeInsets.only(bottom: verticalSpacing),
+                      child: _buildImage(),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: verticalSpacing),
+                      child: Text(
+                        'Smart Parking Assistant',
+                        style: GoogleFonts.montserrat(
+                          color: const Color.fromRGBO(230, 230, 235, 1),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: verticalSpacing),
+                      child: _emailAddress(horizontalPadding, dense: true),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: verticalSpacing),
+                      child: _password(horizontalPadding, dense: true),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: verticalSpacing),
+                      child: _forgotPasswordButton(context, horizontalPadding, dense: true),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(bottom: verticalSpacing),
+                      child: _signin(context, dense: true),
                     ),
                     _signup(context),
                   ],
@@ -136,27 +149,30 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Widget _emailAddress() {
+  Widget _emailAddress(double horizontalPadding, {bool dense = false}) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 60.0),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Email Address',
-                style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
+                style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1), fontSize: 13),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: dense ? 6 : 16),
               TextField(
                 controller: _emailController,
+                style: TextStyle(fontSize: dense ? 13 : 16),
                 decoration: InputDecoration(
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
                   filled: true,
                   hintText: 'example@test.com',
-                  hintStyle: const TextStyle(
-                      color: Color.fromRGBO(106, 106, 106, 1), fontSize: 14),
+                  hintStyle: TextStyle(
+                      color: Color.fromRGBO(106, 106, 106, 1), fontSize: dense ? 12 : 14),
                   fillColor: const Color.fromRGBO(247, 247, 249, 1),
                   border: OutlineInputBorder(
                     borderSide: BorderSide.none,
@@ -171,40 +187,50 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Widget _password() {
+  Widget _password(double horizontalPadding, {bool dense = false}) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 60.0),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Password',
-                style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
+                style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1), fontSize: 13),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: dense ? 6 : 16),
               TextField(
                 controller: _passwordController,
                 obscureText: _isObscured,
+                style: TextStyle(fontSize: dense ? 13 : 16),
                 decoration: InputDecoration(
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
                   filled: true,
                   fillColor: const Color.fromRGBO(247, 247, 249, 1),
                   border: OutlineInputBorder(
                     borderSide: BorderSide.none,
                     borderRadius: BorderRadius.circular(14),
                   ),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _isObscured ? Icons.visibility_off : Icons.visibility,
-                      color: const Color.fromRGBO(158, 158, 158, 1),
+                  suffixIcon: Padding(
+                    padding: const EdgeInsets.only(right: 4),
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxHeight: 24, maxWidth: 40),
+                      child: IconButton(
+                        icon: Icon(
+                          _isObscured ? Icons.visibility_off : Icons.visibility,
+                          color: const Color.fromRGBO(158, 158, 158, 1),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isObscured = !_isObscured;
+                          });
+                        },
+                        splashRadius: 18,
+                      ),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _isObscured = !_isObscured;
-                      });
-                    },
                   ),
                 ),
                 onSubmitted: (_) async {
@@ -222,19 +248,19 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Widget _forgotPasswordButton(BuildContext context) {
+  Widget _forgotPasswordButton(BuildContext context, double horizontalPadding, {bool dense = false}) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 60.0),
+          padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           child: Align(
             alignment: Alignment.centerRight,
             child: TextButton(
               onPressed: () => _resetPassword(context),
-              child: const Text(
+              child: Text(
                 'Forgot Password?',
-                style: TextStyle(color: Color.fromRGBO(203, 182, 119, 1)),
+                style: TextStyle(color: Color.fromRGBO(203, 182, 119, 1), fontSize: dense ? 12 : 14),
               ),
             ),
           ),
@@ -264,13 +290,13 @@ class _LoginState extends State<Login> {
     }
   }
 
-  Widget _signin(BuildContext context) {
+  Widget _signin(BuildContext context, {bool dense = false}) {
     return ConstrainedBox(
       constraints: const BoxConstraints(
-        maxWidth: 400.0,
+        maxWidth: 300.0,
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40.0),
+        padding: EdgeInsets.symmetric(horizontal: dense ? 10.0 : 20.0),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color.fromRGBO(255, 255, 255, 0.14),
@@ -282,9 +308,8 @@ class _LoginState extends State<Login> {
               color: Color.fromRGBO(255, 255, 255, 0.32),
               width: 1,
             ),
-            minimumSize: const Size(double.infinity,
-                60), // OG minimumSize: const Size(double.infinity, 60),
-            elevation: 0, padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            minimumSize: Size(double.infinity, dense ? 36 : 48),
+            elevation: 0, padding: EdgeInsets.symmetric(horizontal: dense ? 8.0 : 20.0),
           ),
           onPressed: () async {
             await AuthService().signin(
@@ -293,9 +318,9 @@ class _LoginState extends State<Login> {
               context: context,
             );
           },
-          child: const Text(
+          child: Text(
             "Sign In",
-            style: TextStyle(color: Colors.white, fontSize: 18),
+            style: TextStyle(color: Colors.white, fontSize: dense ? 14 : 18),
           ),
         ),
       ),
@@ -312,12 +337,12 @@ class _LoginState extends State<Login> {
             const TextSpan(
               text: "New User? ",
               style: TextStyle(
-                  color: Color.fromRGBO(255, 255, 255, 1), fontSize: 16),
+                  color: Color.fromRGBO(255, 255, 255, 1), fontSize: 13),
             ),
             TextSpan(
               text: "Create Account",
               style: const TextStyle(
-                  color: Color.fromRGBO(203, 182, 119, 1), fontSize: 16),
+                  color: Color.fromRGBO(203, 182, 119, 1), fontSize: 13, fontWeight: FontWeight.w500),
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
                   Navigator.push(
@@ -333,13 +358,13 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildImage() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 0),
-      child: Image.asset(
-        'assets/images/JMU-Logo-RGB-vert-white.png',
-        width: 450,
-        fit: BoxFit.contain,
-      ),
+    final double screenWidth = MediaQuery.of(context).size.width;
+    // Keep the logo generally larger while staying responsive across devices.
+    final double logoWidth = (screenWidth * 0.72).clamp(260.0, 380.0).toDouble();
+    return Image.asset(
+      'assets/images/JMU-Logo-RGB-vert-white.png',
+      width: logoWidth,
+      fit: BoxFit.contain,
     );
   }
 }

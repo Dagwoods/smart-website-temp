@@ -57,8 +57,6 @@ class PredictionService {
   String formatPredictionMessage(Map<String, dynamic> prediction) {
     final spaces = prediction['predicted_spaces'];
     final percentage = prediction['availability_percentage'];
-    final confidence = prediction['confidence'];
-    final modelUsed = prediction['model_used'];
     final garageName = prediction['garage_name'];
     final zoneType = prediction['zone_type'];
     
@@ -78,14 +76,7 @@ Prediction for $garageName ($zoneType)
 
 AVAILABILITY: $availabilityStatus
 Estimated Spaces: $spaces
-Availability: ${percentage.toStringAsFixed(1)}%
-
-PREDICTION CONFIDENCE: ${confidence.toStringAsFixed(1)}%
-
-Model Used: ${modelUsed.toUpperCase()}
-
-This prediction is based on historical parking patterns, 
-arrival time, day of week, and special events.''';
+Availability: ${percentage.toStringAsFixed(1)}%''';
   }
   
   /// Test if the prediction API is running

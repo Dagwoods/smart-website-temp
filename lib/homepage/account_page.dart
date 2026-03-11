@@ -146,8 +146,12 @@ class _AccountPageState extends State<AccountPage> {
     final User? user = FirebaseAuth.instance.currentUser;
     final mediaQuery = MediaQuery.of(context);
     final double topPanelInset = mediaQuery.padding.top + kToolbarHeight + 12;
-    final double bottomPanelInset = mediaQuery.padding.bottom + 56;
-    const double panelVerticalOffset = 40;
+    final double bottomPanelInset = mediaQuery.padding.bottom + 12;
+    const double panelVerticalOffset = 0;
+    final double pageHorizontalPadding =
+        (mediaQuery.size.width * 0.028).clamp(14.0, 34.0).toDouble();
+    final double containerWidth =
+      (mediaQuery.size.width * 0.80).clamp(320.0, 1100.0).toDouble();
 
     return Scaffold(
       backgroundColor: const Color.fromRGBO(0, 0, 0, 1),
@@ -253,8 +257,8 @@ class _AccountPageState extends State<AccountPage> {
               child: Padding(
                 padding: EdgeInsets.only(
                   top: topPanelInset,
-                  left: 16,
-                  right: 16,
+                  left: pageHorizontalPadding,
+                  right: pageHorizontalPadding,
                   bottom: bottomPanelInset,
                 ),
                 child: Transform.translate(
@@ -270,21 +274,20 @@ class _AccountPageState extends State<AccountPage> {
                         )
                       : user != null
                           ? Center(
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 560),
-                                child: SizedBox(
-                                  height: double.infinity,
-                                  child: Container(
-                                    width: double.infinity,
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: const Color.fromRGBO(247, 247, 249, 0.75),
-                                      borderRadius: BorderRadius.circular(14),
-                                      border: Border.all(color: Colors.grey.shade300),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
+                              child: SizedBox(
+                                width: containerWidth,
+                                height: double.infinity,
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: const Color.fromRGBO(247, 247, 249, 1),
+                                    borderRadius: BorderRadius.circular(14),
+                                    border: Border.all(color: Colors.grey.shade300),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
                                                 const Text('Saved Addresses',
                                                     style: TextStyle(
                                                         fontWeight:
@@ -335,16 +338,32 @@ class _AccountPageState extends State<AccountPage> {
                                                 ),
                                                 const SizedBox(height: 8),
                                                 Align(
-                                                  alignment: Alignment.centerLeft,
+                                                  alignment:
+                                                      Alignment.centerLeft,
                                                   child: SizedBox(
                                                     width: 160,
                                                     child: ElevatedButton(
-                                                      style: ElevatedButton.styleFrom(
-                                                        backgroundColor: const Color.fromRGBO(69, 0, 132, 1),
-                                                        foregroundColor: const Color.fromRGBO(255, 255, 255, 1),
+                                                      style: ElevatedButton
+                                                          .styleFrom(
+                                                        backgroundColor:
+                                                        const Color
+                                                          .fromRGBO(
+                                                          69,
+                                                          0,
+                                                          132,
+                                                          1),
+                                                        foregroundColor:
+                                                            const Color
+                                                                .fromRGBO(
+                                                                255,
+                                                                255,
+                                                                255,
+                                                                1),
                                                       ),
-                                                      onPressed: _updateHomeAddress,
-                                                      child: const Text('Save Address'),
+                                                      onPressed:
+                                                          _updateHomeAddress,
+                                                      child: const Text(
+                                                          'Save Address'),
                                                     ),
                                                   ),
                                                 ),
@@ -396,8 +415,7 @@ class _AccountPageState extends State<AccountPage> {
                                     ),
                                   ),
                                 ),
-                              ),
-                            )
+                              )
                           : const Align(
                               alignment: Alignment.topCenter,
                               child: Text('User not authenticated'),

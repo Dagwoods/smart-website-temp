@@ -94,24 +94,13 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int currentPageIndex = 0;
-  Key _pageKey = UniqueKey();
-
-  Widget _getCurrentPage() {
-    switch (currentPageIndex) {
-      case 0:
-        return PredicterPage(key: _pageKey);
-      case 1:
-        return HomePage(key: _pageKey);
-      case 2:
-        return TrafficPage(key: _pageKey);
-      case 3:
-        return SearchPage(key: _pageKey);
-      case 4:
-        return AccountPage(key: _pageKey);
-      default:
-        return PredicterPage(key: _pageKey);
-    }
-  }
+  final List<Widget> _pages = const [
+    PredicterPage(),
+    HomePage(),
+    TrafficPage(),
+    SearchPage(),
+    AccountPage(),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -157,8 +146,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     onDestinationSelected: (int index) {
                       setState(() {
                         currentPageIndex = index;
-                        _pageKey =
-                            UniqueKey(); // Generate new key to force page refresh
                       });
                     },
                     indicatorColor: const Color.fromRGBO(203, 182, 119, .75),
@@ -193,7 +180,10 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-      body: _getCurrentPage(),
+      body: IndexedStack(
+        index: currentPageIndex,
+        children: _pages,
+      ),
     );
   }
 }
